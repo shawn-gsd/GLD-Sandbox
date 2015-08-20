@@ -1,0 +1,819 @@
+<apex:page standardController="Quote__c" extensions="QuoteGeneratorController" showHeader="false" standardStylesheets="true"> 
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <apex:includeScript value="/support/console/26.0/integration.js"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <style>
+            .form-group.required .control-label:after {
+                content:" *";
+                color:red;
+            }
+            .modalDiv {
+            position:   fixed;
+            z-index:    1000;
+            top:        0;
+            left:       0;
+            height:     100%;
+            width:      100%;
+            background: rgba( 255, 255, 255, .8 ) 
+                        url('/img/loading.gif') 
+                        50% 50% 
+                        no-repeat;  
+            }
+            .btn-custom {
+                display: inline-block;
+                padding: 6px 12px;
+                margin-bottom: 0;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1.42857143;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                -ms-touch-action: manipulation;
+                touch-action: manipulation;
+                cursor: pointer;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                background-image: none;
+                border: 1px solid transparent;
+                border-radius: 4px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class = "modalDiv" style = "display:none;">  
+            <p style="position: fixed; padding-top: 25%;font-weight: bold;color: black;padding-left: 46%;font-size: 19px;" id="msgBlock"><b> Processing...</b></p>
+        </div>
+        <div class="container-fluid">
+             <apex:form >
+                <div class="row">
+                    <div class="col-sm-9" > 
+                        <div class="row">
+                            <div class="col-sm-12" style="margin-bottom:2%;"></div>
+                            </div> 
+                            <div class="row">
+                                <div class="col-sm-5">
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="row">
+                                        <div class="col-sm-2">
+                                            <input type="button" value="Save" onclick="calculateMonthlyPremium('save');"  class="btn-custom btn-success"/> 
+                                        </div>
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                            <input type="button" value="Clone"  onclick="cloneSave();" class="btn-custom btn-success" />     
+                                        </div>
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-3">
+                                            <input type="button" value="Add New"  onclick="addSave();" class="btn-custom btn-success" />     
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <apex:outputPanel id="hiddenField">
+                                        <input type="hidden" id="quoteId" class="quoteId" value="{!quote.Id}"/>
+                                        <input type="hidden" id="methodType" class="methodType" value="{!methodType}"/>
+                                        <input type="hidden" id="accountId" class="accountId" value="{!accountId}"/>
+                                    </apex:outputPanel>   
+                                </div>
+                                <div class="col-sm-8" style="color:red;">
+                                    <apex:outputPanel id="errMsg">{!errorMsg}</apex:outputPanel>
+                                        
+                                </div>
+                            </div>
+                            <apex:outputPanel id="nickName">
+                                <div class="row">
+                                    <div class="col-sm-1">
+                                    </div>
+                                    <div class="col-sm-3 quoteNameError" style="color:red;">
+                                    </div>
+                                </div> 
+                                <div class="row">
+                                    <div class="col-sm-2" style="text-align:right;">
+                                        <apex:outputLabel >Quote Nickname</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div><apex:inputField value="{!quote.Quote_Nickname__c}" styleClass="quoteName form-control"/></div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!quote.Include__c}" styleClass="include"/> 
+                                        <apex:outputLabel style="margin-left:6%;">Include</apex:outputLabel>   
+                                    </div>
+                                    <div class="col-sm-1">
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <apex:outputLabel >Policy Information</apex:outputLabel>
+                                    <apex:outputPanel rendered="{!allowSpouseQuote}">
+                                        <apex:inputField id="spouse" styleClass="spouse" value="{!quote.Spousal_Adjustment__c}" style="margin-left:3%;" onclick="choosePolicy(this.checked,'spouse')"/>
+                                        <apex:outputLabel style="margin-left:3%;">Spouse Policy</apex:outputLabel>
+                                    </apex:outputPanel>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3" style="margin-bottom:.5%;"></div>
+                                <div class="col-sm-3 ageError" style="margin-bottom:.5%;color:red;" id="ageError"></div>
+                                <div class="col-sm-1" style="margin-bottom:.5%;"></div>
+                                <div class="col-sm-2 genderError" style="margin-bottom:.5%;color:red;" id="genderError"></div>
+                                <div class="col-sm-1" style="margin-bottom:.5%;"></div>
+                                <div class="col-sm-2 stateError" style="margin-bottom:.5%;color:red;" id="stateError"></div>
+                            </div>
+                            <div class="row form-group required">
+                                <div class="col-sm-1">
+                                </div>
+                                <div class="col-sm-2">
+                                    <apex:outputLabel styleClass="control-label">Date Of Birth</apex:outputLabel>
+                                </div>
+                                <div class="col-sm-2" >
+                                    <apex:inputText id="age"  value="{!birthDate}" styleClass="form-control age datePicker"  style="background:white;"   onchange="calculateMonthlyPremium('validate');"/>
+                                    <!--<input type="text" />-->
+                                </div>
+                                <div class="col-sm-1" style="width:10%;">
+                                    <apex:outputLabel styleClass="control-label">Gender</apex:outputLabel>
+                                </div>
+                                <div class="col-sm-2">
+                                    <apex:inputField id="gender"  value="{!quote.Gender__c}"  onchange="calculateMonthlyPremium('validate');" styleClass="form-control gender"/>
+                                </div>
+                                <div class="col-sm-1">
+                                    <apex:outputLabel styleClass="control-label">State</apex:outputLabel> 
+                                </div>
+                                <div class="col-sm-2">
+                                    <apex:selectList id="state" value="{!selectedState}" multiselect="false" size="1" onchange="calculateMonthlyPremium('validate');" styleClass="form-control state">
+                                        <apex:selectOptions value="{!states}" />
+                                    </apex:selectList>   
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                            </div>
+                            <apex:outputPanel id="basePanel">
+                                <div class="row">
+                                    <div class="col-sm-1">
+                                    </div>
+                                    <div class="col-sm-2" >
+                                        <apex:outputLabel >Base Minimum Coverage</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:outputText id="baseMinimumCoverAmount"  value="{!quote.Base_Minimum_Cover_Amount__c}" styleClass="form-control baseMinimumCoverAmount" /> 
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1">
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Base Coverage Amount</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField id="basePreferredCoverage" value="{!quote.Base_Cover_Amount__c}"  onchange="calculateMonthlyPremium('validate');" styleClass="form-control baseCoverAmount"/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div id="basePreferredCoverageError" style="color:red;" class="baseCoverAmountError"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1">
+                                    </div>
+                                    <div class="col-sm-2" >
+                                        <apex:outputLabel >Base Coverage Monthly Premium</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:outputText id="monthlyPremium" value="{!quote.Base_Monthly_Premium__c}" styleClass="form-control baseMonthlyPremium" />
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-1">
+                                </div>
+                                <div class="col-sm-11">
+                                    <apex:inputField value="{!quote.Inflation_Fighter__c}" />
+                                    <apex:outputLabel style="margin-left:1%;">Inflation Fighter</apex:outputLabel>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-1">
+                                </div>
+                                <div class="col-sm-11">
+                                    <apex:inputField id="child" value="{!quote.Child_Rider__c}" styleClass="child" onclick="choosePolicy(this.checked,'child')"/>
+                                    <apex:outputLabel style="margin-left:1%;">Add Child Rider</apex:outputLabel>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                            </div>
+                            <div id="childRiderDiv" class="childRiderDiv">
+                                <div class="row">
+                                    <div class="col-sm-12"><apex:outputLabel >Child Rider Information</apex:outputLabel></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                                </div>
+                                <apex:outputPanel id="childPanel">
+                                    <div class="row">
+                                        <div class="col-sm-1">
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Child Minimum Coverage</apex:outputLabel>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:outputText id="childMinimumCoverage" value="{!childMinimumCoverage}" styleClass="form-control childMinimumCoverage"/> 
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-1">
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Child Coverage Amount</apex:outputLabel>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:inputField id="childRiderCoverageAmount" value="{!quote.Child_Rider_Coverage_Amount__c}"  onchange="calculateChildMonthlyPremium('validate');" styleClass="form-control childRiderCoverageAmount"/>
+                                        </div>
+                                        <div class="col-sm-3 childRiderCoverageAmountError" id="childRiderCoverageAmountError" style="color:red;" >
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-1">
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Child Premium</apex:outputLabel>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:outputtext id="childPremium" value="{!quote.Child_Rider_Monthly_Premium__c}" styleClass="form-control childPremium"/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12" style="margin-bottom:.5%;"></div>
+                                    </div>
+                                </apex:outputPanel>
+                            </div>
+                           <apex:actionFunction action="{!calculateMonthlyPremium}" name="monthlyPremium" reRender="basePanel,childPanel,errMsg,hiddenField,nickName,summary" oncomplete="oncompleteMethod();">                
+                               <apex:param value="" name="methodType"/>
+                           </apex:actionFunction>
+                        
+                    </div>
+                    <apex:outputPanel id="summary">
+                        <div class="col-sm-3" style="border-left: 1px solid;">
+                            <div class="row"> 
+                                <div class="col-sm-12" style="margin-bottom:20%;"> </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="text-align:center;"><h3 >Quote Summary</h3></div>
+                            </div>
+                            <div class="row" style="margin-bottom:5%;">
+                                <div class="col-sm-2" ></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8"><h4 >Quote</h4></div>
+                                <div class="col-sm-4"><h4 >Premium Rate</h4></div>
+                            </div>
+                            <apex:outputPanel rendered="{!quoteList != null && quoteList.size > 0}">
+                                <apex:repeat value="{!quoteList}" var="q">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <a onclick="openNewTab(this.id);" id="{!q.Id}" style="cursor:pointer;">{!q.Quote_Nickname__c}</a> 
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <apex:outputText value="{0, number, 0.00}" styleClass="form-control" style="text-align:right;">
+                                                <apex:param value="{!q.Base_Monthly_Premium__c}"/>
+                                            </apex:outputText>
+                                        </div>
+                                    </div>
+                                    <apex:outputPanel rendered="{!q.Child_Rider__c}">
+                                        <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                        <div class="row">
+                                            <div class="col-sm-2"></div>
+                                            <div class="col-sm-6">
+                                                <apex:outputPanel >Child</apex:outputPanel> 
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <apex:outputText value="{0, number, 0.00}" styleClass="form-control" style="text-align:right;">
+                                                    <apex:param value="{!q.Child_Rider_Monthly_Premium__c}"/>
+                                                </apex:outputText>
+                                            </div>
+                                        </div>
+                                   </apex:outputPanel>
+                                   <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                </apex:repeat>
+                            </apex:outputPanel>
+                            <div class="row" style="margin-bottom:2%;">
+                                <div class="col-sm-2" ></div>
+                            </div>
+                            <div class="row"> 
+                                <div class="col-sm-8">
+                                    <apex:outputLabel >Total Premium</apex:outputLabel>
+                                </div>
+                                <div class="col-sm-4">
+                                    <input type="text" value="{!totalPremium}" class="form-control" disabled="true" style="text-align:right;"/>
+                                </div>    
+                            </div>
+                            <apex:outputPanel rendered="{!quoteList != null && quoteList.size > 0}">
+                                <div class="row" style="margin-bottom:5%;">
+                                    <div class="col-sm-2" ></div>
+                                </div>
+                                <div class="row">   
+                                    <div class="col-sm-4">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input type="button" onclick="sendQuotePack();" value="Send Quote Pack"  class="btn-custom btn-success"/> 
+                                    </div>
+                                    <div class="col-sm-4">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4" style="margin-bottom:5%;"></div> 
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input type="button" onclick="modelSummary();" value="Proceed With Sale"  class="btn-custom btn-success"/>
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                        </div>
+                    </apex:outputPanel>
+                </div> 
+                <apex:outputPanel id="modalPanel">
+                    <div class="modal fade summaryModal"  role="dialog">
+                        <div class="modal-dialog">
+                             <div class="modal-content">
+                                 <div class="modal-header">
+                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                     <h3 class="modal-title">Quote Summary</h3>
+                                     <div class="row"><div class="col-sm-12" style="margin-bootom:5%;"></div></div>
+                                 </div>
+                                 <div class="modal-body">
+                                     
+                                    <div class="row">
+                                        <div class="col-sm-8"><h4 >Quote</h4></div>
+                                        <div class="col-sm-4"><h4 style="text-align:right;">Premium Rate</h4></div>
+                                    </div>
+                                    <apex:outputPanel rendered="{!quoteList != null && quoteList.size > 0}">
+                                        <apex:repeat value="{!quoteList}" var="q">
+                                            <div class="row">
+                                                <div class="col-sm-8">
+                                                    <apex:outputPanel >{!q.Quote_Nickname__c}</apex:outputPanel> 
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <apex:outputText value="{0, number, 0.00}" styleClass="form-control" style="text-align:right;">
+                                                        <apex:param value="{!q.Base_Monthly_Premium__c}"/>
+                                                    </apex:outputText>
+                                                </div>
+                                            </div>
+                                            <apex:outputPanel rendered="{!q.Child_Rider__c}">
+                                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                                <div class="row">
+                                                    <div class="col-sm-2"></div>
+                                                    <div class="col-sm-6">
+                                                        <apex:outputPanel >Child</apex:outputPanel> 
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        
+                                                        <apex:outputText value="{0, number, 0.00}" styleClass="form-control" style="text-align:right;">
+                                                            <apex:param value="{!q.Child_Rider_Monthly_Premium__c}"/>
+                                                        </apex:outputText>
+                                                    </div>
+                                                </div>
+                                           </apex:outputPanel>
+                                           <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                        </apex:repeat>
+                                    </apex:outputPanel>
+                                    <div class="row"><div class="col-sm-12" style="margin-bottom:2%;"></div></div>
+                                    <div class="row"> 
+                                        <div class="col-sm-8">
+                                            <h4 >Total Premium</h4>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" value="{!totalPremium}" class="form-control" disabled="true" style="text-align:right;"/>
+                                        </div>    
+                                    </div> 
+                                    <div class="row">
+                                        <div class="col-sm-12" style="margin-bottom:3%;"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4"></div>
+                                        <div class="col-sm-4">
+                                            <input type="button" value="Confirm to Create Policy" onclick="createOpportunity();"  class="form-control btn-custom btn-success" reRender="none" />
+                                        </div>
+                                        <div class="col-sm-4"></div>
+                                    </div>   
+                                </div>
+                             </div>
+                        </div>
+                    </div> 
+                </apex:outputPanel>
+                <apex:actionFunction action="{!calculateSummary}" name="summaryName" reRender="summary,modalPanel" oncomplete="openModalSummary();"/>
+            </apex:form>   
+        </div>
+    </body>
+    <script>
+        var start=false;
+        function modelSummary() {
+            $('.modalDiv').show();
+            summaryName();
+        }
+        function openModalSummary() {
+            $('.summaryModal').modal('toggle');
+            $('.modalDiv').hide();
+        }
+        function sendQuotePack() {
+            /*$('.modalDiv').show();
+            accountAddressAction();
+            */
+            var redirectUrl = '/apex/SendInfoPack?id={!Account.Id}&packType=quote&quoteIds={!includeQuoteIdString}'; 
+            if (sforce.console.isInConsole()) { 
+                sforce.console.getEnclosingPrimaryTabId(function(primaryResult){ 
+                    sforce.console.openSubtab(primaryResult.id, redirectUrl, true, 'Send Quote Pack', null); 
+                }); 
+            } 
+        }
+        function openAddressModal() {
+            $('.addressMessage').text('');
+             $('.addressModal').modal('toggle'); 
+             $('.modalDiv').hide();   
+        }
+        function saveVerifiedAddress() {
+            $('.modalDiv').show();
+            $('.addressModal').modal('toggle');
+            var accId=$('.accountId').val();
+            var accountShippingCity=$('.accountShippingCity').val();
+            var accountShippingStreet=$('.accountShippingStreet').val();
+            console.log(accountShippingStreet);
+            var accountShippingPostalCode=$('.accountShippingPostalCode').val();
+            var accountShippingState=$('.accountShippingState').val();
+            var accountShippingCountry=$('.accountShippingCountry').val();
+            QuoteGeneratorController.saveAddress(accId,accountShippingStreet,accountShippingCity,accountShippingState,accountShippingPostalCode,accountShippingCountry,function(result, event){
+               console.log(result);
+               console.log(event);
+                if (event.status) {
+                    
+                    if(result == "Success") {
+                        $('.addressModal').modal('toggle');
+                        console.log(result);
+                        $('.addressMessage').show();
+                        $('.addressMessage').text('Saved Successfully !');
+                    }else {
+                        console.log(result);
+                        $('.addressModal').modal('toggle');
+                        $('.addressMessage').show();
+                        $('.addressMessage').text(result);
+                    }
+                    $('.modalDiv').hide();
+                }
+            });
+        }
+        
+        function createOpportunity() {
+            
+            var accId=$('.accountId').val();
+            $('.modalDiv').show();
+            $('.summaryModal').modal('toggle');
+            if(accId != '') {
+                QuoteGeneratorController.createOpportunity(accId,function(result, event){
+                        if (event.status) {
+                           oppList=JSON.parse(result); 
+                           if (sforce.console.isInConsole()) { 
+                               sforce.console.getEnclosingPrimaryTabId(function(primaryResult){ 
+                                   for(var i=0;i<oppList.length;i++) {
+                                       sforce.console.openSubtab(primaryResult.id, '/apex/PolicyParticipant?oppId='+oppList[i].Id, true,'Policy-'+oppList[i].Name, null); 
+                                    }
+                                }); 
+                            }
+                        } 
+                        else {
+                            alert(result);
+                            console.log(event.message);
+                        }
+                        $('.modalDiv').hide(); 
+                    }, 
+                    {escape: false}
+                );
+            }
+        }
+        function disableTextBox() {
+            
+            $('.childPremium').attr("disabled", true);
+            $('.baseMonthlyPremium').attr("disabled", true);
+            $('.baseMinimumCoverAmount').attr("disabled", true);
+            $('.childMinimumCoverage').attr("disabled", true);
+            if($('.childMinimumCoverage').text() != '') {
+                $('.childRiderCoverageAmount').removeAttr("disabled"); 
+                var temp=$('.childRiderCoverageAmount').val().replace(/,/g, '');
+                $('.childRiderCoverageAmount').val(temp);   
+            }else {
+                $('.childRiderCoverageAmount').attr("disabled",true);    
+            }
+            if($('.baseMinimumCoverAmount').text() != '') {
+                $('.baseCoverAmount').removeAttr("disabled");
+                var temp=$('.baseCoverAmount').val().replace(/,/g, '');
+                $('.baseCoverAmount').val(temp);
+            }else{
+                $('.baseCoverAmount').attr("disabled",true);
+            }
+            if($(".child").is(':checked')) {
+                
+                $('.spouse').attr('disabled',true);
+                $('.childRiderDiv').show();
+            }
+            if($(".spouse").is(':checked')) {
+                $('.child').attr('disabled',true);
+                $('.childRiderDiv').hide();
+            }
+        }
+        function oncompleteMethod() {
+        
+            disableTextBox();
+            validateBPC();
+            validateCCA();
+            var methodType=$('.methodType').val();
+            console.log('methodType'+methodType);
+            if(methodType == 'save' || methodType == 'clone' || methodType == 'addNew') {
+                refreshTab();
+            }
+            $('.modalDiv').hide();
+        }
+     
+        function choosePolicy(checked,type) {
+            
+            if(type =='spouse') {
+                if(checked) {
+                    $('.child').attr("disabled", true); 
+                    calculateMonthlyPremium('validate');   
+                }else {
+                    $('.child').removeAttr("disabled");  
+                    calculateMonthlyPremium('validate');
+                }
+            }else if(type =='child') {
+                if(checked) {
+                    $('.spouse').attr("disabled", true);
+                    $('.childRiderDiv').show();
+                    calculateMonthlyPremium('validate');
+                } else {
+                    $('.spouse').removeAttr("disabled");
+                    $('.childRiderDiv').hide();
+                    clearChildValues();
+                    calculateMonthlyPremium('validate');
+                }
+            }
+        }
+        function validateBPC() {
+            var basePreferredCoverage=$('.baseCoverAmount').val();
+            var baseMinimumCoverAmount=$('.baseMinimumCoverAmount').text();
+            var childRiderCoverageAmount=$('.childRiderCoverageAmount').val();
+            var childMinimumCoverage=$('.childMinimumCoverage').text();
+            var intRegex = /^\d+$/;
+            console.log('*basePreferredCoverage: ' + basePreferredCoverage);
+            if(basePreferredCoverage !='' && !isNumeric(basePreferredCoverage)) {
+                $('.baseCoverAmountError').text('Enter a valid number for Base Preferred Coverage'); 
+            }else if(basePreferredCoverage !='' && basePreferredCoverage >30000) {
+                $('.baseCoverAmountError').text('Base Coverage Amount should not be greater than 30,000');  
+            }
+            else if(basePreferredCoverage !='' && parseFloat(baseMinimumCoverAmount) > parseFloat(basePreferredCoverage)) {
+                $('.baseCoverAmountError').text('Base Coverage Amount should be greater than Base Minimum Coverage ');
+            }else if(basePreferredCoverage !='' && childRiderCoverageAmount !='' && parseFloat(childRiderCoverageAmount ) > parseFloat(basePreferredCoverage)) {
+                 
+                $('.baseCoverAmountError').text('Base Coverage Amount should be greater than Child Coverage Amount');
+            }else {
+                return true;
+            }
+            $('.baseCoverAmount').css({"border":"2px solid #C00"});
+            $('.baseMonthlyPremium').text('');
+            $('.modalDiv').hide();
+            return false;
+        }
+        function isNumeric(n){
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+
+        function validateCCA() {
+        
+            var basePreferredCoverage=$('.baseCoverAmount').val();
+            var baseMinimumCoverAmount=$('.baseMinimumCoverAmount').text();
+            var childRiderCoverageAmount=$('.childRiderCoverageAmount').val();
+            var childMinimumCoverage=$('.childMinimumCoverage').text();
+            var intRegex = /^\d+$/;
+            if ($('.child').is( ":checked" ) ) {
+                if(childRiderCoverageAmount!='' && !isNumeric(basePreferredCoverage)) {
+                    $('.childRiderCoverageAmountError').text('Enter a valid number for Child Coverage Amount');
+                } else if(childRiderCoverageAmount!='' && parseFloat(childRiderCoverageAmount) < 1000) {
+                    $('.childRiderCoverageAmountError').text('Child  Coverage Amount should be greater than 1000');
+                }else if(childRiderCoverageAmount!='' && baseMinimumCoverAmount != '' && basePreferredCoverage == '' && parseFloat(childRiderCoverageAmount)>parseFloat(baseMinimumCoverAmount)) {
+                    $('.childRiderCoverageAmountError').text('Child  Coverage Amount should be less than Base Minimum Coverage'); 
+                }
+                else if(childRiderCoverageAmount!='' && basePreferredCoverage != '' && parseFloat(childRiderCoverageAmount) > parseFloat(basePreferredCoverage) ) {
+                    $('.childRiderCoverageAmountError').text('Child Coverage Amount should be less than Base Coverage Amount ');
+                }
+                else if(childRiderCoverageAmount!='' && parseFloat(childRiderCoverageAmount) > 10000) {
+                    $('.childRiderCoverageAmountError').text('Child Coverage Amount should be less than 10000'); 
+                }else {
+                    return true;
+                }
+                $('.childRiderCoverageAmount').css({"border":"2px solid #C00"});
+                $('.childPremium').text('');
+                $('.modalDiv').hide();
+                return false;
+            }
+            return true;
+        }
+        function calculateMonthlyPremium(methodType) {
+            
+            $('.modalDiv').show();
+            clearErrorMessage();
+            if(methodType == 'save') {
+                if(!validateNickName()) return false;
+            }
+            if(!validation()) return false;
+            if(!validateBPC()) return false;
+            if(!validateCCA()) return false;
+            console.log('success');
+            monthlyPremium(methodType);
+        }
+        function calculateChildMonthlyPremium(methodType) {
+            
+            $('.modalDiv').show();
+            clearErrorMessage();
+            if(!validation()) return false;
+            if(!validateCCA()) return false;
+            if(!validateBPC()) return false;
+            monthlyPremium(methodType);
+        }
+        function validation() {
+            var intRegex = /^\d+$/;
+            var age=$('.age').val();
+            console.log('age'+age);
+            var gender=$('.gender').val();
+            var state=$('.state').val();
+            if( age == '') {
+                $('.age').css({"border":"2px solid #C00"});
+                $('.ageError').text('Please select  Date of Birth');    
+            }else if(gender == '') {
+                $('.gender').css({"border":"2px solid #C00"});
+                $('.genderError').text('Please select  Gender');    
+            }else if(state == '') {
+                $('.state').css({"border":"2px solid #C00"}); 
+                $('.stateError').text('Please select  State'); 
+            }else {
+                return true;
+            }
+            clearChildValues();
+            clearBaseValues();
+            disableTextBox();
+            $('.modalDiv').hide();
+            return false;
+        }
+        function clearErrorMessage() {
+            
+            $('.quoteName').css({"border":""});
+            $('.quoteNameError').text(''); 
+            $('.age').css({"border":""});  
+            $('span[id*="errMsg"]').text('');
+            $('div[id*="ageError"]').text('');     
+            $('.baseCoverAmount').css({"border":""}); 
+            $('.baseCoverAmountError').text('');
+            $('.childRiderCoverageAmount').css({"border":""});
+            $('.childRiderCoverageAmountError').text('');
+            $('.gender').css({"border":""});
+            $('div[id*="genderError"]').text('');
+            $('.state').css({"border":""}); 
+            $('div[id*="stateError"]').text('');                   
+        }
+        
+        function clearBaseValues() {
+            $('.baseMinimumCoverAmount').text(''); 
+            $('.baseMonthlyPremium').text('');
+            $('.baseCoverAmount').val('');
+        }
+        function clearChildValues() {
+            $('.childRiderCoverageAmount').val('');
+            $('.childMinimumCoverage').text('');
+            $('.childPremium').text('');
+        }
+        function validateNickName() {
+            var quoteName=$('.quoteName').val();
+            quoteName=$.trim(quoteName);
+            if(quoteName == '' && quoteName.length == 0) {
+                $('.quoteName').css({"border":"2px solid #C00"}); 
+                $('.quoteNameError').text('Nickname should not be left empty');
+                $('.modalDiv').hide();
+                return false;    
+            }
+            return true;
+        }
+        function cloneSave() {
+            if(!validateNickName()) return false;
+            if(!calculateMonthlyPremium('clone')) return false;   
+        }
+        function addSave() {
+            if(!validateNickName()) return false;
+            if(!calculateMonthlyPremium('addNew')) return false;   
+        }
+        function refreshTab() {
+           var quoteId=$('.quoteId').val();
+           var quoteName=$('.quoteName').val();
+           var methodType=$('.methodType').val();
+           if(quoteName=='') {
+               quoteName='Quote Generator';
+           }else {
+               quoteName='Quote-'+quoteName;
+           }
+           console.log('quoteId'+quoteId);
+           console.log('quoteName'+quoteName);
+           if(quoteId != '') {
+               var refreshUrl = '/apex/QuoteGenerator?accId={!accountId}&mode=edit&quoteId='+quoteId;
+               if (sforce.console.isInConsole()) { 
+                   sforce.console.getEnclosingPrimaryTabId(function(primaryResult){ 
+                       sforce.console.getEnclosingTabId(function(result) {
+                           sforce.console.openSubtab(primaryResult.id, refreshUrl, true,quoteName, result.id); 
+                           if(methodType=='save') {
+                               window.top.location.href='/console';
+                           }
+                           
+                       });
+                   }); 
+                }
+                if(methodType=='clone' || methodType=='addNew' ) {
+                    cloneTab(methodType);
+                }
+                
+            }
+        }
+        function openNewTab(newTabQuoteId) {
+            
+            if(newTabQuoteId != '') {
+                var newTabQuoteName=$('#'+newTabQuoteId).html();
+                newTabQuoteName='Quote-'+newTabQuoteName;
+                var redirectUrl = '/apex/QuoteGenerator?accId={!accountId}&mode=edit&quoteId='+newTabQuoteId; 
+                if (sforce.console.isInConsole()) { 
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){ 
+                        sforce.console.openSubtab(primaryResult.id, redirectUrl, true,newTabQuoteName, null,function openSuccess(result){
+                            if(result.success) {
+                                sforce.console.focusSubtabById(result.id);
+                                
+                            }
+                        })
+                    }); 
+                } 
+                         
+            }
+        }
+        
+        function cloneTab(methodType) {
+        
+            var quoteId=$('.quoteId').val();
+            if(quoteId != '') {
+                var redirectUrl = '/apex/QuoteGenerator?accId={!accountId}&mode='+methodType+'&quoteId='+quoteId; 
+                if (sforce.console.isInConsole()) { 
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){ 
+                        sforce.console.openSubtab(primaryResult.id, redirectUrl, true, 'Quote Generator', null,function openSuccess(result){
+                            if(result.success) {
+                                sforce.console.focusSubtabById(result.id);
+                                window.top.location.href='/console';
+                            }
+                        }); 
+                    }); 
+                } 
+            } 
+        }
+        $( document ).ready(function() {
+            $('.childRiderDiv').hide();
+            $( ".datePicker" ).datepicker({
+                changeMonth: true,
+                yearRange: "-120:+0",
+                changeYear: true 
+            });
+            disableTextBox();        
+        });
+    </script>
+</apex:page>

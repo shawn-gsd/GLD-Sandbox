@@ -1,0 +1,153 @@
+<apex:page controller="ProspectSearchController" docType="html-5.0" action="{!redirect}">
+    <head>
+    
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <apex:includeScript value="/support/console/26.0/integration.js"/>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
+    <style>
+    .center {
+      text-align: center;
+    }
+    
+    </style>
+    </head>
+    <apex:form >
+    
+    <apex:pageMessages id="messageId"></apex:pageMessages>
+    <apex:pageBlock title="Prospect Search Page"  id="tableid">
+        <apex:panelBar width="100%;">
+            <apex:panelBarItem label="Search Fields" >
+
+                <div>
+                    <table>
+                        <tr>
+                            <td>
+                                First Name: <br/><apex:inputText style="width:150px" value="{!firstName}" label="First Name"/>
+                            </td>
+                            <td>
+                                Last Name: <br/><apex:inputText style="width:150px" id="lastnameid" value="{!lastName}" label="Last Name"/>
+                            </td>
+                            <td>
+                                Phone: <br/><apex:inputText style="width:150px" value="{!Phone}" label="Phone"/>
+                            </td>
+                            <td>
+                                DOB: <br/><apex:input style="width:150px" type="date" value="{!dob}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Street: <br/><apex:inputText style="width:150px" value="{!street}" label="Street"/>
+                            </td>
+                            <td>
+                                City: <br/><apex:inputText style="width:150px" value="{!city}" label="City"/>
+                            </td>
+                            <td>
+                                State: <br/><apex:inputText style="width:150px" value="{!state}" label="State"/>
+                            </td>
+                            <td>
+                                Zip Code: <br/><apex:inputText style="width:150px" value="{!zipcode}" label="Zipcode"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <br/>
+                <div width="100%">
+                    <table>
+                        <tr>
+                            <td width="20%">
+                                <apex:selectList id="sourcecodeorg" value="{!sourceCodeOrg}" size="1">
+                                    <apex:selectOptions value="{!sourceCodeOrganization}" ></apex:selectOptions>        
+                                </apex:selectList>
+                            </td>
+                            <td width="30%">
+                                <apex:selectList id="sourcecodedes" value="{!sourceCodeDes}" size="1">
+                                    <apex:selectOptions value="{!sourceCodeDescription}" ></apex:selectOptions>        
+                                </apex:selectList>
+                            </td>
+                            <td width="30%">
+                                <apex:selectList id="subsourcecodedes" value="{!subSourceCodeDes}" size="1">
+                                    <apex:selectOptions value="{!subSourceCodeDescription}" ></apex:selectOptions>        
+                                </apex:selectList>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <br/>
+                <div class="center">
+                    <apex:commandButton action="{!search}" value="Search" reRender="tableid,messageId" status="searchbuttonstatusid"/>
+                    <apex:commandButton action="{!newLead}" reRender="messageId" value="New Lead"  oncomplete="createsubtab('{!redirecturl}','{!nameval}','{!savehaserrors}');"/>
+                </div>
+                <apex:actionStatus id="searchbuttonstatusid" startText="Loading......"/>
+            </apex:panelBarItem>
+        </apex:panelBar>
+        <apex:outputPanel id="dummypanel"></apex:outputPanel>
+        <apex:actionStatus id="tableloadingid" startText="Loading......"/>
+        <apex:pageBlockSection columns="1" title="Search Results" rendered="{!tableValues.size != 0}" >
+            <apex:pageblockTable value="{!tableValues}" var="val">
+                    
+                    <apex:column headerValue="Last Name"> 
+                        <apex:commandLink style="text-decoration: underline;" reRender="messageId" value="{!val.ListLastName}" action="{!updateRecord}" oncomplete="createsubtab('{!redirecturl}','{!nameval}','{!savehaserrors}');">
+                            <apex:param value="{!val.recordId}" name="recordId"/>
+                        </apex:commandLink>
+                    </apex:column>
+                    <apex:column value="{!val['ListFirstName']}" headerValue="First Name"/>
+                    <apex:column value="{!val['ListPhone']}" headerValue="Phone"/>
+                    <apex:column value="{!val['ListDob']}" headerValue="DOB"/>
+                    <apex:column value="{!val['ListState']}" headerValue="State"/>
+                    <apex:column value="{!val['ListZipcode']}" headerValue="Postal Code"/>
+            </apex:pageblockTable>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+    
+    <apex:actionFunction action="{!updateRecord}" name="updateRecordActionFunc" reRender="tableid,messageId">
+        <apex:param value="recid" name="recordId"/>
+    </apex:actionFunction>
+    <apex:actionFunction action="{!newLead}" name="newLeadActionFunc" reRender="messageId"/>
+    </apex:form>
+    
+    
+    <script>
+    
+        function createsubtab(passedUrl,name,savehaserrors){
+                if(savehaserrors == 'true'){
+                    return false;
+                }
+                try{
+                    var redirectUrl = '/'+passedUrl; 
+                    if (sforce.console.isInConsole()) { 
+                      try{
+                                sforce.console.getPrimaryTabIds(function(primaryResult){ 
+                                        sforce.console.openPrimaryTab(undefined,
+                                            redirectUrl , true, name);
+                                }); 
+                        }
+                        catch(e){
+                            alert(e);
+                            window.location.href = redirectUrl;
+                        }
+                    } 
+                    else {
+                        window.location.href = redirectUrl; 
+                    }
+                }catch(e){alert(e);}
+                return false;   
+        }
+        
+        function newLeadfunc(passedlastnameid){
+            try{alert(passedlastnameid);
+                var lastnamepassed = document.getElementById('lastnameid').value;
+                alert(lastnamepassed);
+                if(lastnamepassed == ''){
+                    alert('Please Enter a Value for Last Name to Create Lead');
+                    return;
+                }
+                newLeadActionFunc();
+            }catch(e){alert(e);}
+        }
+        
+
+    </script>
+</apex:page>

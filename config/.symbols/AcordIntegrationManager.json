@@ -1,0 +1,373 @@
+{
+    "properties": [
+        {
+            "modifiers": [
+                "private", 
+                "final"
+            ], 
+            "name": "CLIENT_CERT", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 18, 
+                "line": 12
+            }, 
+            "type": "String"
+        }, 
+        {
+            "modifiers": [
+                "private", 
+                "final"
+            ], 
+            "name": "CERT_PASSWORD", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 18, 
+                "line": 13
+            }, 
+            "type": "String"
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "theXml", 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 19, 
+                "line": 15
+            }, 
+            "type": "String"
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "cleanedXml", 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 19, 
+                "line": 16
+            }, 
+            "type": "String"
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "res", 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 25, 
+                "line": 17
+            }, 
+            "type": "HttpResponse"
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "req", 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 18
+            }, 
+            "type": "HttpRequest"
+        }
+    ], 
+    "externalReferences": [], 
+    "innerClasses": [], 
+    "interfaces": [], 
+    "constructors": [
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "AcordIntegrationManager", 
+            "parameters": [
+                {
+                    "type": "Id", 
+                    "name": "oppId"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 12, 
+                "line": 21
+            }, 
+            "type": null
+        }
+    ], 
+    "namespace": null, 
+    "name": "AcordIntegrationManager", 
+    "tableDeclaration": {
+        "type": "AcordIntegrationManager", 
+        "modifiers": [
+            "public", 
+            "with sharing"
+        ], 
+        "references": [], 
+        "location": {
+            "column": 27, 
+            "line": 1
+        }, 
+        "name": "AcordIntegrationManager"
+    }, 
+    "key": "01p550000008fzwAAA", 
+    "variables": [
+        {
+            "type": "Id", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 39, 
+                "line": 21
+            }, 
+            "name": "oppId"
+        }, 
+        {
+            "type": "Opportunity", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 21, 
+                "line": 22
+            }, 
+            "name": "opp"
+        }, 
+        {
+            "type": "LIST", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 40, 
+                "line": 72
+            }, 
+            "name": "participants"
+        }, 
+        {
+            "type": "Policy_Participants__c", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 36, 
+                "line": 73
+            }, 
+            "name": "par"
+        }, 
+        {
+            "type": "PolicyParticipantWrapper", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 38, 
+                "line": 74
+            }, 
+            "name": "parWrapper"
+        }, 
+        {
+            "type": "Opportunity", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 38, 
+                "line": 89
+            }, 
+            "name": "opp"
+        }, 
+        {
+            "type": "LIST", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 73, 
+                "line": 89
+            }, 
+            "name": "participants"
+        }, 
+        {
+            "type": "AcordXMLHelper", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 90
+            }, 
+            "name": "helper"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 35, 
+                "line": 95
+            }, 
+            "name": "theXml"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 37, 
+                "line": 101
+            }, 
+            "name": "xmlBody"
+        }, 
+        {
+            "type": "HttpRequest", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 48, 
+                "line": 106
+            }, 
+            "name": "req"
+        }, 
+        {
+            "type": "Http", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 14, 
+                "line": 107
+            }, 
+            "name": "http"
+        }, 
+        {
+            "type": "HttpResponse", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 22, 
+                "line": 108
+            }, 
+            "name": "res"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 44, 
+                "line": 113
+            }, 
+            "name": "xmlBody"
+        }
+    ], 
+    "id": "01p550000008fzwAAA", 
+    "methods": [
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "getXml", 
+            "parameters": [
+                {
+                    "type": "Opportunity", 
+                    "name": "opp"
+                }, 
+                {
+                    "type": "LIST", 
+                    "name": "participants"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 19, 
+                "line": 89
+            }, 
+            "returnType": "String", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "cleanXml", 
+            "parameters": [
+                {
+                    "type": "String", 
+                    "name": "theXml"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 19, 
+                "line": 95
+            }, 
+            "returnType": "String", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "sendPolicy", 
+            "parameters": [
+                {
+                    "type": "String", 
+                    "name": "xmlBody"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 19, 
+                "line": 101
+            }, 
+            "returnType": "String", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "sendPolicy", 
+            "parameters": [
+                {
+                    "type": "HttpRequest", 
+                    "name": "req"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 25, 
+                "line": 106
+            }, 
+            "returnType": "HttpResponse", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "buildRequest", 
+            "parameters": [
+                {
+                    "type": "String", 
+                    "name": "xmlBody"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 113
+            }, 
+            "returnType": "HttpRequest", 
+            "type": null
+        }
+    ]
+}

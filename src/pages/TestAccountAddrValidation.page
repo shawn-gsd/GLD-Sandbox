@@ -1,0 +1,10 @@
+<apex:page showHeader="true" sidebar="true" standardController="Account">
+	<apex:form >
+    <apex:pageBlock >
+        <apex:pageBlockSection >
+            <apex:outputField value="{!Account.Name}"/>
+            <pca:Address street="{!Account.BillingStreet}" state="{!Account.BillingState}" zip="{!Account.BillingPostalCode}" country="{!Account.BillingCountry}"/>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+    </apex:form>
+</apex:page>

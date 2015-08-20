@@ -1,0 +1,21 @@
+<apex:page controller="QuoteGeneratorCSV_crt">
+    <apex:form >
+        <apex:pagemessages />
+        <apex:pageBlock >
+            <apex:pageBlockSection columns="4"> 
+                  <apex:inputFile value="{!csvFileBody}"  filename="{!csvAsString}"/>
+                  <apex:commandButton value="Import Quote" action="{!importCSVFile}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+         <apex:pageBlock >
+           <apex:pageblocktable value="{!Quotelist}" var="quo">
+              <apex:column value="{!quo.Date_Of_Birth__c}" />
+             <apex:column value="{!quo.Gender__c}" />
+             <apex:column value="{!quo.State__c}" />
+             <apex:column value="{!quo.Base_Cover_Amount__c}" />
+              <apex:column value="{!quo.Child_Rider_Coverage_Amount__c}" />
+        </apex:pageblocktable>
+     </apex:pageBlock>
+       
+   </apex:form>
+</apex:page>

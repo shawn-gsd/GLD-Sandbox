@@ -1,0 +1,1921 @@
+<apex:page standardController="Opportunity" extensions="PolicyParticipantController" standardStylesheets="true" showHeader="false">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <apex:includeScript value="/support/console/26.0/integration.js"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <style>
+            .form-group.required .control-label:after {
+                content:" *";
+                color:red;
+            }
+            .modalDiv {
+            position:   fixed;
+            z-index:    1000;
+            top:        0;
+            left:       0;
+            height:     100%;
+            width:      100%;
+            background: rgba( 255, 255, 255, .8 ) 
+                        url('/img/loading.gif') 
+                        50% 50% 
+                        no-repeat;  
+            }
+            .menu
+            {
+                border-left: 1px solid black;
+                height: 100%;
+                
+            }
+            .btn-primary-custom
+            {
+                color: #fff; 
+                background-color: #337ab7; 
+                border-color: #2e6da4; 
+            }
+            .btn-custom {
+                display: inline-block;
+                padding: 6px 12px;
+                margin-bottom: 0;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1.42857143;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                -ms-touch-action: manipulation;
+                touch-action: manipulation;
+                cursor: pointer;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                background-image: none;
+                border: 1px solid transparent;
+                border-radius: 4px;
+            }
+        </style>
+    </head> 
+    <body>
+        <div class = "modalDiv" style = "display:none;">  
+            <p style="position: fixed; padding-top: 25%;font-weight: bold;color: black;padding-left: 46%;font-size: 19px;" id="msgBlock"><b> Processing...</b></p>
+        </div>
+        <apex:form >
+            <apex:inputText style="display:none;" value="{!methodType}" styleClass="methods"/>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-12" style="margin-bottom:2%;"></div>    
+                </div>
+                <div class="row">
+                    <div class="col-sm-8 " style="border-right: 1px solid;">
+                        <div class="row">
+                            <div class="col-sm-5"></div>
+                            <div class="col-sm-2" style="margin-left:3%;"><input type = "button" class = "btn-custom btn-success" value="Save" onclick="saveMethod();"/></div>
+                        </div>
+                        <div class="row">
+                            <apex:outputPanel id="pageMessage">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-8 pageMessage" style="display:none;" ><apex:pageMessages ></apex:pageMessages></div>
+                            </apex:outputPanel>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12" style="margin-bottom:2%;"></div>    
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                            </div>
+                            <div class="col-sm-8">
+                                <input type="button" class="btn-info btn-custom payorTab"  value="Payor"  onclick="toggleTab('payor');" id="payorBtn" />
+                                <input type="button" class="btn-info btn-custom ownerTab" value="Owner"  onclick="toggleTab('owner');" id="ownerBtn"/>
+                                <input type="button" class="btn-info btn-custom insuredTab" value="Insured"  onclick="toggleTab('insured');" id="insuredBtn"/>
+                                <input type="button" class="btn-info btn-custom beneficiaryTab" value="Beneficiary"  onclick="toggleTab('beneficiary');" id="beneficiaryBtn"/>    
+                            </div>
+                        </div>
+                        <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                        <div id="payorHolder" style="display:none;" class="payorHolder">
+                            <apex:outputPanel id="payorPanel">
+                                <apex:inputText styleClass="payorId" value="{!payorAcc.Id}" style="display:none;"/>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Relation to Primary Insured</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ppForPayor.Relation_to_Primary_Insured__c}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Payor Party Search</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                       <apex:inputField value="{!ppForPayor.Account__c}" onchange="payorPartySearch();"/>
+                                    </div>
+                                    <div class="col-sm-1">
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <apex:inputCheckbox value="{!sameAsOwnerInPayor}" onclick="ownerPayorPartySearch();"/> <apex:outputLabel style="margin-left:10%;">Same as Owner</apex:outputLabel>   
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-3 payorTitleError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Title</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!payorAcc.Title__c}" styleClass="form-control payorTitle"/>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Suffix</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!payorAcc.Suffix__c}" styleClass="form-control payorSuffix"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 payorFirstNameError" style="color:red;"></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 payorLastNameError" style="color:red;"></div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Payor Party First Name</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control payorFirstName" value="{!payorAcc.FirstName}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Payor Party Last Name</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control payorLastName" value="{!payorAcc.LastName}" />    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-8"></div>
+                                    <div class="col-sm-2 payorPaymentError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Payor Party Email</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control payorEmail" value="{!payorAcc.PersonEmail}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Payment Method</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control payorPayment" value="{!payorAcc.Payment_Method__c}" onchange="paymentMethod();"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <apex:outputPanel rendered="{!payorAcc.Payment_Method__c == 'EFT'}" styleClass="EFT">
+                                    <div class="row">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Bank Name</apex:outputLabel>    
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:inputField styleClass="form-control" value="{!payorAcc.Bank_Name__c}"/>    
+                                        </div>
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Bank Account</apex:outputLabel>    
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:inputField styleClass="form-control" value="{!payorAcc.Bank_Account_Number__c}"/>    
+                                        </div>
+                                    </div>
+                                    <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                    <div class="row">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Bank Routing Number</apex:outputLabel>    
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:inputField styleClass="form-control" value="{!payorAcc.Bank_Routing_Number__c}"/>        
+                                        </div>
+                                    </div>
+                                 </apex:outputPanel>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 payorBillingStreetError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Billing/Residental Address Street</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control payorBillingStreet" value="{!payorAcc.BillingStreet}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Postal Address Street</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText value="{!payorAcc.ShippingStreet}" styleClass="form-control payorShippingStreet"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 payorBillingCityError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >City</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control payorBillingCity" value="{!payorAcc.BillingCity}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >City</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText value="{!payorAcc.ShippingCity}" styleClass="form-control payorShippingCity"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 payorBillingStateError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >State/Province</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control payorBillingState" value="{!payorAcc.BillingState}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >State/Province</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText value="{!payorAcc.ShippingState}" styleClass="form-control payorShippingState"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 payorBillingPostalCodeError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Zip/Postal Code</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control payorBillingPostalCode" value="{!payorAcc.BillingPostalCode}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Zip/Postal Code</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText value="{!payorAcc.ShippingPostalCode}" styleClass="form-control payorShippingPostalCode"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 payorBillingCountryError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Country</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control payorBillingCountry" value="{!payorAcc.BillingCountry}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Country</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText value="{!payorAcc.ShippingCountry}" styleClass="form-control payorShippingCountry"/>    
+                                    </div>
+                                </div>
+                            </apex:outputPanel>
+                        </div>
+                        <div id="ownerHolder" style="display:none;" class="ownerHolder">
+                            <apex:outputPanel id="ownerPanel">
+                                <apex:inputText styleClass="ownerId" value="{!ownerAcc.Id}" style="display:none;"/>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Relation to Primary Insured</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ppForOwner.Relation_to_Primary_Insured__c}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Owner Party Search</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ppForOwner.Account__c}" onchange="ownerPartySearch();"/>
+                                    </div>
+                                    <div class="col-sm-1">
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <apex:inputCheckbox value="{!sameAsPayorInOwner}" onclick="sameAsPayorInOwnerSearch();"/>
+                                        <apex:outputLabel style="margin-left:10%;">Same As Payor</apex:outputLabel>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerTitleError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Title</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ownerAcc.Title__c}" styleClass="form-control ownerTitle"/>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Suffix</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ownerAcc.Suffix__c}" styleClass="form-control ownerSuffix"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerFirstNameError" style="color:red;"> </div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerPhoneError" style="color:red;"> </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Owner Party First Name</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control ownerFirstName" value="{!ownerAcc.FirstName}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Owner Party Phone</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control ownerPhone" value="{!ownerAcc.Phone}"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerLastNameError" style="color:red;"></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerDOBError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Owner Party Last Name</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control ownerLastName" value="{!ownerAcc.LastName}" />    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Owner Party Date of Birth</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField style="width:100%;" styleClass="form-control ownerDOB" value="{!ownerAcc.PersonBirthdate}" onchange="ownerSecondaryAddress('Owner');"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerEmailError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Owner Party Email</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control ownerEmail" value="{!ownerAcc.PersonEmail}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2"><apex:outputLabel >Age</apex:outputLabel></div>
+                                    <div class="col-sm-2"><apex:outputText value="{!ownerAge}" styleClass="form-control"/></div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerSSNError" style="color:red;"></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerGenderError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >SSN</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control ownerSSN" value="{!ownerAcc.SSN__c}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Owner Party Gender</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ownerAcc.Gender__c}" styleClass="form-control ownerGender"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerBillingStreetError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Billing/Residental Address Street</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control ownerBillingStreet" value="{!ownerAcc.BillingStreet}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Postal Address Street</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ownerAcc.ShippingStreet}" styleClass="form-control ownerShippingStreet"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerBillingCityError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >City</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control ownerBillingCity" value="{!ownerAcc.BillingCity}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >City</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ownerAcc.ShippingCity}" styleClass="form-control ownerShippingCity"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerBillingStateError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >State/Province</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control ownerBillingState" value="{!ownerAcc.BillingState}" onchange="ownerSecondaryAddress('Owner');"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >State/Province</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ownerAcc.ShippingState}" styleClass="form-control ownerShippingState"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerBillingPostalCodeError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Zip/Postal Code</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control ownerBillingPostalCode" value="{!ownerAcc.BillingPostalCode}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Zip/Postal Code</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ownerAcc.ShippingPostalCode}" styleClass="form-control ownerShippingPostalCode"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 ownerBillingCountryError" style="color:red;"></div>
+                                </div> 
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Country</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control ownerBillingCountry" value="{!ownerAcc.BillingCountry}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Country</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ownerAcc.ShippingCountry}" styleClass="form-control ownerShippingCountry"/>    
+                                    </div>
+                                </div>
+                                <apex:outputPanel id="secondaryAddress" rendered="{!secondaryAddressFlag}">
+                                    <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                    <div class="row">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Secondary Address</apex:outputLabel>    
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:inputField styleClass="form-control" value="{!ownerAcc.Secondary_Address__c}"/>    
+                                        </div>
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Secondary City</apex:outputLabel>    
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:inputField value="{!ownerAcc.Secondary_City__c}" styleClass="form-control"/>    
+                                        </div>
+                                    </div>
+                                    <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                    <div class="row">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Secondary State</apex:outputLabel>    
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:inputField styleClass="form-control" value="{!ownerAcc.Secondary_State__c}"/>    
+                                        </div>
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                            <apex:outputLabel >Secondary Zip</apex:outputLabel>    
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <apex:inputField value="{!ownerAcc.Secondary_Zip__c}" styleClass="form-control"/>    
+                                        </div>
+                                    </div>    
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+                        </div>
+                        <div id="insuredHolder" style="display:none;" class="insuredHolder">
+                            <apex:outputPanel id="insuredPanel">
+                                <apex:inputText styleClass="insuredId" value="{!insuredAcc.Id}" style="display:none;"/>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Relation to Primary Insured</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ppForInsured.Relation_to_Primary_Insured__c}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Insured Party Search</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        
+                                       <apex:inputField value="{!ppForInsured.Account__c}" onchange="insuredPartySearch();"/>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-4">
+                                        <apex:selectRadio value="{!insuredRadioValue}" onclick="insuredRadioFunction();" style="margin-left:10%;width:100%;">
+                                            <apex:selectOptions value="{!beneficiaryRadio}" />
+                                        </apex:selectRadio>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3" ></div>
+                                    <div class="col-sm-2 insuredTitleError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Title</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!insuredAcc.Title__c}" styleClass="form-control insuredTitle"/>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Suffix</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!insuredAcc.Suffix__c}" styleClass="form-control insuredSuffix"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredFirstNameError" style="color:red;"></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredPhoneError" style="color:red;">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Insured Party First Name</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control insuredFirstName" value="{!insuredAcc.FirstName}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Insured Party Phone</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control insuredPhone" value="{!insuredAcc.Phone}"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredLastNameError" style="color:red;"> </div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredDOBError" style="color:red;">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Insured Party Last Name</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control insuredLastName" value="{!insuredAcc.LastName}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Insured Party Date of Birth</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField style="width:100%;" styleClass="form-control insuredDOB" value="{!insuredAcc.PersonBirthdate}" onchange="calculateBasePremium();"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredEmailError" style="color:red;">
+                                    </div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredAgeError" style="color:red;">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Insured Party Email</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control insuredEmail" value="{!insuredAcc.PersonEmail}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2"><apex:outputLabel >Age</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2"><apex:outputText value="{!insuredAge}" styleClass="form-control insuredAge"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredSSNError" style="color:red;" >
+                                    </div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredGenderError" style="color:red;" >
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >SSN</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control insuredSSN" value="{!insuredAcc.SSN__c}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Insured Gender</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!insuredAcc.Gender__c}" styleClass="form-control insuredGender" onchange="calculateBasePremium();"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredBillingStreetError" style="color:red;"></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredShippingStreetError" style="color:red;"></div>
+                                </div> 
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Billing/Residental Address Street</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control insuredBillingStreet" value="{!insuredAcc.BillingStreet}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Postal Address Street</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!insuredAcc.ShippingStreet}" styleClass="form-control insuredShippingStreet"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredBillingCityError" style="color:red;"></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredShippingCityError" style="color:red;"></div>
+                                </div> 
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >City</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control insuredBillingCity" value="{!insuredAcc.BillingCity}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >City</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!insuredAcc.ShippingCity}" styleClass="form-control insuredShippingCity"/>    
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredBillingStateError" style="color:red;" ></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredShippingStateError" style="color:red;" ></div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >State/Province</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control insuredBillingState" value="{!insuredAcc.BillingState}" onchange="calculateBasePremium();"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >State/Province</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!insuredAcc.ShippingState}" styleClass="form-control insuredShippingState" />    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredBillingPostalCodeError" style="color:red;"></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredShippingPostalCodeError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Zip/Postal Code</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control insuredBillingPostalCode" value="{!insuredAcc.BillingPostalCode}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Zip/Postal Code</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!insuredAcc.ShippingPostalCode}" styleClass="form-control insuredShippingPostalCode"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredBillingCountryError" style="color:red;"></div>
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 insuredShippingCountryError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Country</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control insuredBillingCountry" value="{!insuredAcc.BillingCountry}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Country</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!insuredAcc.ShippingCountry}" styleClass="form-control insuredShippingCountry"/>    
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12" style="margin-bottom:2%;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <input type="button" class="btn-custom btn-success" onclick="addChild()" value="Add">
+                                        </input>
+                                        <strong>Child Rider Information</strong>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-5 addChildError" style="color:red;"></div>
+                                    
+                                </div>
+                                <apex:outputPanel id="childGroup">
+                                    <div class="row">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2"><apex:outputLabel >First Name</apex:outputLabel></div>
+                                        <div class="col-sm-2"><apex:outputLabel >Last Name</apex:outputLabel></div>
+                                        <div class="col-sm-2"><apex:outputLabel >Date of Birth</apex:outputLabel></div>
+                                        <div class="col-sm-2"><apex:outputLabel >Gender</apex:outputLabel></div>
+                                        <div class="col-sm-1"><apex:outputLabel >Legal Child</apex:outputLabel></div>
+                                        <div class="col-sm-1"><apex:outputLabel >Financially Dependent</apex:outputLabel></div>
+                                    </div>
+                                    <apex:repeat value="{!criList}" var="cri">
+                                        <apex:inputText value="{!cri.position}" style="display:none;"/>
+                                        <div class="row">
+                                            <div class="col-sm-1"></div>
+                                            <div style="color:red;" class="col-sm-2"><div style="display:none;" class="childFirstNameError{!cri.position}">First Name should not be empty</div></div>
+                                            <div style="color:red;" class="col-sm-2"><div style="display:none;" class="childLastNameError{!cri.position}">Last Name should not be empty</div></div>
+                                            <div class="col-sm-2" style="color:red;"><div style="display:none;" class="childDOBError{!cri.position}">Field should not be empty</div></div>
+                                            <div class="col-sm-2" style="color:red;"><div style="display:none;" class="childGenderError{!cri.position}">Field should not be empty</div></div>
+                                            <div style="color:red;" class="col-sm-3"><div style="display:none;" class="checkBoxError{!cri.position}">Both Legal Child and Financially Dependent must be selected</div></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-1"><input type="button" class="btn-custom btn-danger" onclick="deleteChild('{!cri.position}');" value="Delete" /></div>
+                                            <div class="col-sm-2"><apex:inputText value="{!cri.childAcc.FirstName}" styleClass="form-control childFirstName"/></div>
+                                            <div class="col-sm-2"><apex:inputText value="{!cri.childAcc.LastName}"  styleClass="form-control childLastName"/></div>
+                                            <div class="col-sm-2"><apex:inputField value="{!cri.childAcc.PersonBirthdate}" styleClass="form-control childDOB"/></div>
+                                            <div class="col-sm-2"><apex:inputField value="{!cri.childAcc.Gender__c}" styleClass="form-control childGender"/></div>
+                                            <div class="col-sm-1"><apex:inputField value="{!cri.childAcc.Legal_Child__c}" styleClass="legalChild"/></div>
+                                            <div class="col-sm-1"><apex:inputField value="{!cri.childAcc.Financially_Dependent__c}" styleClass="financialDependent"/></div>
+                                        </div> 
+                                        <div class="row">
+                                            <div class="col-sm-12" style="margin-bottom:1%;"></div>
+                                        </div>
+                                    </apex:repeat>   
+                                </apex:outputPanel>  
+                            </apex:outputPanel>
+                        </div>
+                        <div id="beneficiaryHolder" style="display:none" class="beneficiaryHolder">
+                            <apex:outputPanel id="beneficiaryPanel">
+                                <div class="row">
+                                    <div class="col-sm-2"></div>
+                                    <div class="col-sm-6 beneficiaryError" style="color:red;"></div>
+                                </div>
+                                <apex:inputText styleClass="beneficiaryId" value="{!beneficiaryAcc.Id}" style="display:none;"/>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Relation to Primary Insured</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ppForBeneficiary.Relation_to_Primary_Insured__c}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Beneficiary Party Search</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!ppForBeneficiary.Account__c}" onchange="beneficiaryPartySearch();"/>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-4">
+                                        <apex:selectRadio value="{!beneficiaryRadioValue}" onclick="beneficiaryRadioFunction();" style="margin-left:10%;width:100%;">
+                                            <apex:selectOptions value="{!beneficiaryRadio}" />
+                                        </apex:selectRadio>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Title</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!beneficiaryAcc.Title__c}" styleClass="form-control beneficiaryTitle"/>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Suffix</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!beneficiaryAcc.Suffix__c}" styleClass="form-control beneficiarySuffix"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 beneficiaryFirstNameError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Beneficiary Party First Name</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control beneficiaryFirstName" value="{!beneficiaryAcc.FirstName}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Beneficiary Party Phone</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control beneficiaryPhone" value="{!beneficiaryAcc.Phone}"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-2 beneficiaryLastNameError" style="color:red;"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Beneficiary Party Last Name</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control beneficiaryLastName" value="{!beneficiaryAcc.LastName}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Beneficiary Party Date of Birth</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField style="width:100%;" styleClass="form-control beneficiaryDOB" value="{!beneficiaryAcc.PersonBirthdate}"/>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Beneficiary Party Email</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputText styleClass="form-control beneficiaryEmail" value="{!beneficiaryAcc.PersonEmail}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2"><apex:outputLabel >Age</apex:outputLabel>
+                                    </div>
+                                    <div class="col-sm-2"><apex:outputText value="{!beneficiaryAge}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Beneficiary Party Gender</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!beneficiaryAcc.Gender__c}" styleClass="form-control beneficiaryGender"/>    
+                                    </div>    
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Billing/Residental Address Street</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control beneficiaryBillingStreet" value="{!beneficiaryAcc.BillingStreet}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Postal Address Street</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!beneficiaryAcc.ShippingStreet}" styleClass="form-control beneficiaryShippingStreet"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >City</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control beneficiaryBillingCity" value="{!beneficiaryAcc.BillingCity}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >City</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!beneficiaryAcc.ShippingCity}" styleClass="form-control beneficiaryShippingCity"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >State/Province</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control beneficiaryBillingState" value="{!beneficiaryAcc.BillingState}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >State/Province</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!beneficiaryAcc.ShippingState}" styleClass="form-control beneficiaryShippingState"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Zip/Postal Code</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control beneficiaryBillingPostalCode" value="{!beneficiaryAcc.BillingPostalCode}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Zip/Postal Code</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!beneficiaryAcc.ShippingPostalCode}" styleClass="form-control beneficiaryShippingPostalCode"/>    
+                                    </div>
+                                </div>
+                                <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                                <div class="row">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Country</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField styleClass="form-control beneficiaryBillingCountry" value="{!beneficiaryAcc.BillingCountry}"/>    
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-2">
+                                        <apex:outputLabel >Country</apex:outputLabel>    
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <apex:inputField value="{!beneficiaryAcc.ShippingCountry}" styleClass="form-control beneficiaryShippingCountry"/>    
+                                    </div>
+                                </div>
+                                </apex:outputPanel>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:5%;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5"></div>
+                                <div class="col-sm-2"><input type = "button" class = "btn-custom btn-success" value="Save" onclick="saveMethod();"/></div>
+                                <div class="col-sm-4"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:2%;"></div>    
+                            </div>  
+                        </div>
+                        
+                        <apex:outputPanel id="policySummary">
+                        <div class="col-sm-4">
+                            <apex:inputText value="{!criListSize}" style="display:none;" styleClass="criList"/>
+                            <div class="row">
+                                <div class="col-sm-12" style="text-align:center;"><h3 >Policy Summary</h3> </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:2%;"></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12"><apex:outputLabel >Payor</apex:outputLabel></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5"><apex:outputText styleClass="form-control" style="height:100%;min-height:34px;" value="{!payorAcc.FirstName}"/></div>
+                                <div class="col-sm-5"><apex:outputText styleClass="form-control" style="height:100%;min-height:34px;" value="{!payorAcc.LastName}"/></div>    
+                                <div class="col-sm-2 payorColor" style="padding-left:0px;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12"><apex:outputLabel >Owner</apex:outputLabel></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5"><apex:outputText styleClass="form-control" style="height:100%;min-height:34px;" value="{!ownerAcc.FirstName}"/></div>
+                                <div class="col-sm-5"><apex:outputText styleClass="form-control" style="height:100%;min-height:34px;" value="{!ownerAcc.LastName}"/></div>    
+                                <div class="col-sm-2 ownerColor" style="padding-left:0px;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12"><apex:outputLabel >Insured</apex:outputLabel></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5"><apex:outputText styleClass="form-control" style="height:100%;min-height:34px;" value="{!insuredAcc.FirstName}"/></div>
+                                <div class="col-sm-5"><apex:outputText styleClass="form-control" style="height:100%;min-height:34px;" value="{!insuredAcc.LastName}"/></div>    
+                                <div class="col-sm-2 insuredColor" style="padding-left:0px;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12"><apex:outputLabel >Beneficiary</apex:outputLabel></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5"><apex:outputText styleClass="form-control" style="height:100%;min-height:34px;" value="{!beneficiaryAcc.FirstName}"/></div>
+                                <div class="col-sm-5"><apex:outputText styleClass="form-control" style="height:100%;min-height:34px;" value="{!beneficiaryAcc.LastName}"/></div>    
+                                <div class="col-sm-2 beneficiaryColor" style="padding-left:0px;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:5%;"></div>    
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-sm-6"><apex:outputLabel > Minimum Coverage Amount</apex:outputLabel></div>
+                                <div class="col-sm-4"><apex:outputText styleClass="form-control baseMinimumCoverageAmount" value="{!opp.Insured_Base_Minimum_Cover_Amount__c}"/></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:1%;"></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6"><apex:outputLabel >Coverage Amount</apex:outputLabel></div>
+                                <div class="col-sm-4"><apex:inputField styleClass="form-control baseCoverageAmount" value="{!opp.Insured_Base_Coverage_Amount__c}" onchange="calculateBasePremium('Base');"/></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6"></div>
+                                <div class="col-sm-4 baseCoverageAmountError" style="display:none;color:red;"></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:1%;"></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6"><apex:outputLabel >Monthly Premium</apex:outputLabel></div>
+                                <div class="col-sm-4"><apex:outputText styleClass="form-control basePremium" value="{!opp.Base_Monthly_Premium__c}"/></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:1%;"></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6"><apex:outputLabel >Child Coverage Amount</apex:outputLabel></div>
+                                <div class="col-sm-4"><apex:inputField styleClass="form-control childCoverageAmount" value="{!opp.Child_Rider_Cover_Amount__c}" onchange="calculateChildPremium();"/></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6"></div>
+                                <div class="col-sm-4 childCoverageAmountError" style="display:none;color:red;"></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:1%;"></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6"><apex:outputLabel >Child Monthly Premium</apex:outputLabel></div>
+                                <div class="col-sm-4"><apex:outputText styleClass="form-control childPremium" value="{!opp.Child_Rider_Monthly_Premium__c}"/></div>    
+                            </div>
+                            <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                            <div class="row">
+                                <div class="col-sm-6"><apex:inputField value="{!opp.Spousal_Adjustment__c}" onclick="calculateBasePremium();" style="margin-left:1%;" styleClass="spouse"/><apex:outputLabel style="margin-left:5%;">Spouse Policy</apex:outputLabel></div>    
+                            </div>
+                            <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                            <div class="row">
+                                <div class="col-sm-6"><apex:inputField value="{!opp.Consent_Received__c}" style="margin-left:1%;"/><apex:outputLabel style="margin-left:4%;">Consent Received</apex:outputLabel></div>  
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6"><apex:inputField value="{!opp.Inflation_Fighter__c}" style="margin-left:1%;"/><apex:outputLabel style="margin-left:4%;">Inflation Fighter</apex:outputLabel></div>  
+                            </div>
+                            <div class="row"><div class="col-sm-12" style="margin-bottom:1%;"></div></div>
+                            
+                            <div class="row">
+                                <div class="col-sm-12" style="margin-bottom:6%;"></div>    
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-4"><input type="button" class="btn-custom btn-success" value="Submit Policy" onclick="openPolicyConfirmation();"/></div>    
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                </div>
+                <apex:outputPanel id="policyConfirmation">
+                    <div id="myModal" class="modal fade policyConfirmation" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <apex:outputPanel >Policy Confirmation</apex:outputPanel>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-3"><apex:outputLabel >Payor</apex:outputLabel></div>
+                                        <div class="col-sm-6"><apex:outputField value="{!payorAcc.FirstName}"/>nbsp;nbsp;<apex:outputField value="{!payorAcc.LastName}"/></div>
+                                    </div>
+                                    <div class="row" style="margin-bottom:1%;">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-3"><apex:outputLabel >Owner</apex:outputLabel></div>
+                                        <div class="col-sm-6"><apex:outputField value="{!ownerAcc.FirstName}"/>nbsp;nbsp;<apex:outputField value="{!ownerAcc.LastName}"/></div>
+                                    </div>
+                                    <div class="row" style="margin-bottom:1%;">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-3"><apex:outputLabel >Insured</apex:outputLabel></div>
+                                        <div class="col-sm-6"><apex:outputField value="{!insuredAcc.FirstName}"/>nbsp;nbsp;<apex:outputField value="{!insuredAcc.LastName}"/></div>
+                                    </div>
+                                    <div class="row" style="margin-bottom:1%;">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-3"><apex:outputLabel >Beneficiary</apex:outputLabel></div>
+                                        <div class="col-sm-6"><apex:outputField value="{!beneficiaryAcc.FirstName}"/>nbsp;nbsp;<apex:outputField value="{!beneficiaryAcc.LastName}"/></div>
+                                    </div>
+                                    <div class="row" style="margin-bottom:5%;">
+                                        <div class="col-sm-3"></div>
+                                        <div class="col-sm-2"><apex:outputLabel >Coverage Amount</apex:outputLabel></div>
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2"><apex:outputLabel >Monthly Premium</apex:outputLabel></div>
+                                    </div>
+                                    <div class="row" style="margin-bottom:2%;">
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2"><apex:outputLabel >Insured</apex:outputLabel></div>
+                                        <div class="col-sm-2"><apex:outputLabel >Coverage Amount</apex:outputLabel></div>
+                                        <div class="col-sm-1"></div>
+                                        <div class="col-sm-2"><apex:outputLabel >Monthly Premium</apex:outputLabel></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </apex:outputPanel>
+            </div>
+            <apex:actionFunction action="{!saveRecords}" name="saveRecords" reRender="policySummary,payorPanel,beneficiaryPanel,ownerPanel,childGroup,insuredPanel,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!payorPartySearch}" name="payorPartySearchAction" reRender="payorPanel,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!ownerPayorPartySearch}" name="ownerPayorPartySearchAction" reRender="payorPanel,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!beneficiaryPartySearch}" name="beneficiaryPartySearchAction" reRender="beneficiaryPanel,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!beneficiaryRadioFunction}" name="beneficiaryRadioAction" reRender="beneficiaryPanel,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!ownerPartySearch}" name="ownerPartySearchAction" reRender="ownerPanel,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!sameAsPayorInOwnerSearch}" name="sameAsPayorInOwnerSearchAction" reRender="ownerPanel,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!insuredRadioFunction}" name="insuredRadioAction" reRender="insuredPanel,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!insuredPartySearch}" name="insuredPartySearchAction" reRender="insuredPanel,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!addChild}" name="addChildAction" reRender="childGroup,policySummary,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!deleteChild}" name="deleteChildAction" reRender="childGroup,policySummary,pageMessage" oncomplete="onCompleteMethod();">
+                <apex:param name="delPos" value=""/>
+            </apex:actionFunction>
+            <apex:actionFunction action="{!paymentType}" name="paymentAction" reRender="payorPanel,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!calculatePremium}" name="calculatePremiumAction" reRender="policySummary,insuredPanel,pageMessage" oncomplete="onCompleteMethod();"/>
+            <apex:actionFunction action="{!savePolicy}" name="savePolicyAction" reRender="policySummary,pageMessage" oncomplete="onCompletePremium();"/>
+            <apex:actionFunction action="{!ownerSecondaryAddress}" name="ownerSecondaryAddressAction" reRender="ownerPanel,pageMessage" oncomplete="onCompleteMethod();">
+                <apex:param name="objectType" value=""/>
+            </apex:actionFunction>
+        </apex:form>    
+    </body>
+    <script>
+        var ppArray = ["payor", "owner", "insured", "beneficiary"];
+        
+        var checkPayorFieldArray=["payorTitle","payorSuffix","payorFirstName","payorLastName","payorEmail","payorPayment","payorBillingStreet","payorBillingCity","payorBillingState","payorBillingPostalCode","payorBillingCountry","payorShippingStreet","payorShippingCity","payorShippingState","payorShippingPostalCode","payorShippingCountry"];
+        var requiredPayorFieldArray=["payorTitle","payorFirstName","payorLastName","payorPayment","payorBillingStreet","payorBillingCity","payorBillingState","payorBillingPostalCode","payorBillingCountry"];
+        var checkOwnerFieldArray=["ownerTitle","ownerSuffix","ownerFirstName","ownerLastName","ownerSSN","ownerDOB","ownerPhone","ownerEmail","ownerGender","ownerBillingStreet","ownerBillingCity","ownerBillingState","ownerBillingPostalCode","ownerBillingCountry","ownerShippingStreet","ownerShippingCity","ownerShippingState","ownerShippingPostalCode","ownerShippingCountry"];
+        var requiredOwnerFieldArray=["ownerTitle","ownerFirstName","ownerLastName","ownerSSN","ownerDOB","ownerPhone","ownerEmail","ownerGender","ownerBillingStreet","ownerBillingCity","ownerBillingState","ownerBillingPostalCode","ownerBillingCountry"];
+        var checkInsuredFieldArray=["insuredTitle","insuredSuffix","insuredFirstName","insuredLastName","insuredSSN","insuredDOB","insuredPhone","insuredEmail","insuredGender","insuredBillingStreet","insuredBillingCity","insuredBillingState","insuredBillingPostalCode","insuredBillingCountry","insuredShippingStreet","insuredShippingCity","insuredShippingState","insuredShippingPostalCode","insuredShippingCountry"];
+        var requiredInsuredFieldArray=["insuredTitle","insuredFirstName","insuredLastName","insuredSSN","insuredDOB","insuredPhone","insuredEmail","insuredGender","insuredBillingStreet","insuredBillingCity","insuredBillingState","insuredBillingPostalCode","insuredBillingCountry","insuredShippingStreet","insuredShippingCity","insuredShippingState","insuredShippingPostalCode","insuredShippingCountry"];
+        var checkBeneficiaryFieldArray=["beneficiaryTitle","beneficiarySuffix","beneficiaryFirstName","beneficiaryLastName","beneficiaryDOB","beneficiaryPhone","beneficiaryEmail","beneficiaryGender","beneficiaryBillingStreet","beneficiaryBillingCity","beneficiaryBillingState","beneficiaryBillingPostalCode","beneficiaryBillingCountry","beneficiaryShippingStreet","beneficiaryShippingCity","beneficiaryShippingState","beneficiaryShippingPostalCode","beneficiaryShippingCountry"];
+        var requiredBeneficiaryFieldArray=["beneficiaryFirstName","beneficiaryLastName"];
+        function openPolicyConfirmation() {
+            $('.modalDiv').show();
+            hideError();
+            if(!validateRequiredField()) return false;
+            if(!childValidation()) return false;
+            if(!checkBeneficiaryInsuredNotSame()) return false;
+            if(!validatePremiumInput()) return false;
+            if(!validateBasePolicy()) return false;
+            if(!validateChildPolicy()) return false;
+            $('.modalDiv').hide();
+            $('.policyConfirmation').modal('toggle');
+        }
+        function paymentMethod() {
+            $('.modalDiv').show();
+            paymentAction();
+        }
+        function ownerSecondaryAddress(objectType) {
+            console.log(objectType);
+            $('.modalDiv').show();
+            ownerSecondaryAddressAction(objectType);
+        }
+        function validation() {
+            var errorValidationFlag=false;
+            for(k=0;k<ppArray.length;k++) {
+                isCheck=false;
+                if(ppArray[k] == 'payor') {
+                    isCheck=isCheckRequiredField(checkPayorFieldArray);
+                }else if(ppArray[k] == 'owner') {
+                    isCheck=isCheckRequiredField(checkOwnerFieldArray);
+                }else if(ppArray[k] == 'insured') {
+                    isCheck=isCheckRequiredField(checkInsuredFieldArray);
+                }else if(ppArray[k] == 'beneficiary') {
+                    isCheck=isCheckRequiredField(checkBeneficiaryFieldArray);
+                }
+                console.log(isCheck+'::'+ppArray[k]);
+                if(isCheck) {
+                    if($('.'+ppArray[k]+'LastName').val() == '') {
+                        $('.'+ppArray[k]+'LastNameError').text('Last Name should not be empty');
+                        $('.'+ppArray[k]+'LastName').css({"border":"2px solid #C00"});
+                        errorValidationFlag=true;
+                    }
+                    if($('.'+ppArray[k]+'FirstName').val() == '') {
+                        $('.'+ppArray[k]+'FirstNameError').text('First Name should not be empty');
+                        $('.'+ppArray[k]+'FirstName').css({"border":"2px solid #C00"});
+                        errorValidationFlag=true;
+                    }
+                }
+            }
+            console.log('errorValidationFlag :'+errorValidationFlag);
+            if(errorValidationFlag) {
+                    $('.modalDiv').hide();
+                    return false;
+            }else {
+                return true;
+            }
+        }
+        function isCheckRequiredField(arrayField) {
+            var isCheckRequired=false;
+            for(i=0;i<arrayField.length;i++) {
+                if($('.'+arrayField[i]).val() != '') {
+                    console.log($('.'+arrayField[i]).val()); 
+                    isCheckRequired=true;
+                    break;
+                }
+            } 
+            return isCheckRequired;   
+        }
+        function validateRequiredField() {
+            validateRequiredFieldError=false;
+            requiredPayor=false;
+            requiredOwner=false;
+            requiredInsured=false;
+            requiredBeneficiary=false;
+            requiredPayor=isCheckRequiredField(checkPayorFieldArray);
+            if(requiredPayor) {
+                for(i=0;i<requiredPayorFieldArray.length;i++) {
+                    if($('.'+requiredPayorFieldArray[i]).val() == '') {
+                        $('.'+requiredPayorFieldArray[i]+'Error').text('Field should not be left empty'); 
+                        $('.'+requiredPayorFieldArray[i]).css({"border":"2px solid #C00"}); 
+                        validateRequiredFieldError=true;   
+                    }
+                }    
+            }
+            requiredOwner=isCheckRequiredField(checkOwnerFieldArray);
+            if(requiredOwner) {
+                for(i=0;i<requiredOwnerFieldArray.length;i++) {
+                    if($('.'+requiredOwnerFieldArray[i]).val() == '') {
+                        $('.'+requiredOwnerFieldArray[i]+'Error').text('Field should not be left empty'); 
+                        $('.'+requiredOwnerFieldArray[i]).css({"border":"2px solid #C00"}); 
+                        validateRequiredFieldError=true;   
+                    }
+                }    
+            }
+            requiredInsured=isCheckRequiredField(checkInsuredFieldArray);
+            if(requiredInsured) {
+                for(i=0;i<requiredInsuredFieldArray.length;i++) {
+                    if($('.'+requiredInsuredFieldArray[i]).val() == '') {
+                        $('.'+requiredInsuredFieldArray[i]+'Error').text('Field should not be left empty'); 
+                        $('.'+requiredInsuredFieldArray[i]).css({"border":"2px solid #C00"}); 
+                        validateRequiredFieldError=true;   
+                    }
+                }    
+            }
+            requiredBeneficiary=isCheckRequiredField(checkBeneficiaryFieldArray);
+            if(requiredBeneficiary) {
+                for(i=0;i<requiredBeneficiaryFieldArray.length;i++) {
+                    if($('.'+requiredBeneficiaryFieldArray[i]).val() == '') {
+                        $('.'+requiredBeneficiaryFieldArray[i]+'Error').text('Field should not be left empty'); 
+                        $('.'+requiredBeneficiaryFieldArray[i]).css({"border":"2px solid #C00"}); 
+                        validateRequiredFieldError=true;   
+                    }
+                }    
+            }
+            if(validateRequiredFieldError) {
+                $('.modalDiv').hide();
+                return false;
+            }else {
+                return true;
+            }
+        }
+        function onCompletePremium() {
+            console.log("true"); 
+            if($(".spouse").is(':checked') || $('.criList').val() < 1) {
+                $('.childCoverageAmount').attr("disabled",true); 
+                console.log("true");   
+            }
+            if($('.criList').val() > 0) {
+                $('.spouse').attr("disabled",true); 
+            }
+            var temp=$('.baseCoverageAmount').val().replace(/,/g, '');
+             $('.baseCoverageAmount').val(temp);
+             var temp=$('.childCoverageAmount').val().replace(/,/g, '');
+             $('.childCoverageAmount').val(temp);
+             $('.modalDiv').hide();
+        }
+        function onCompleteMethod() {
+            onCompletePremium();
+            validateBasePolicy();
+            validateChildPolicy();
+            $('.pageMessage').show();
+            colorFunction();
+            $('.modalDiv').hide();
+            
+        }
+        function savePolicy() {
+            $('.modalDiv').show();
+            hideError();
+            if(!validateRequiredField()) return false;
+            if(!childValidation()) return false;
+            if(!checkBeneficiaryInsuredNotSame()) return false;
+            if(!validatePremiumInput()) return false;
+            if(!validateBasePolicy()) return false;
+            if(!validateChildPolicy()) return false;
+            saveRecords();
+        }
+        function saveMethod() {
+            $('.modalDiv').show();
+            colorFunction();
+            hideError();
+            if(!validation()) return false;
+            if(!childValidation())  return false;
+            if(!checkBeneficiaryInsuredNotSame()) return false;
+            if(!validatePremiumInput()) return false;
+            if(!validateBasePolicy()) return false;
+            if(!validateChildPolicy()) return false;
+            saveRecords();
+        }
+        function calculateInsuredAge() {
+            var insuredDOB=$('.insuredDOB').val();
+            if(!( insuredDOB == null || insuredDOB=='')) {
+                var dateArray=insuredDOB.split('/');
+                todayDate = new Date();
+                todayYear = todayDate.getFullYear();
+                todayMonth = todayDate.getMonth();
+                todayDay = todayDate.getDate();
+                insuredAge = todayYear - dateArray[2];
+                if (todayMonth < dateArray[0]- 1){
+                    insuredAge--;
+                }
+                if (dateArray[0]- 1 == todayMonth && todayDay < dateArray[1]){
+                    insuredAge--;
+                }
+                if(insuredAge > 0) {
+                    $('.insuredAge').text(insuredAge);
+                }else {
+                    $('.insuredAge').text('');
+                }
+                return insuredAge;
+            }else {
+                $('.insuredAge').text('');
+            }
+           
+        }
+        function validatePremiumInput() {
+            var insuredBillingState=$('.insuredBillingState').val();
+            var insuredGender=$('.insuredGender').val();
+            var insuredDOB=$('.insuredDOB').val();
+            var insuredAge=calculateInsuredAge();
+            var ageString='{!ageString}';
+            var ageArray=ageString.split(';');
+            if(insuredDOB == null || insuredDOB =='') {
+                $('.insuredDOBError').text('Please select  Date of Birth'); 
+                $('.insuredDOB').css({"border":"2px solid #C00"});
+            }else if(insuredGender == null || insuredGender == '') {
+               $('.insuredGenderError').text('Please select  Gender');
+               $('.insuredGender').css({"border":"2px solid #C00"});
+                console.log('Enter a insured gender');    
+            }else if(insuredBillingState == null || insuredBillingState == '') {
+               $('.insuredBillingStateError').text('Please select  Billing State'); 
+               $('.insuredBillingState').css({"border":"2px solid #C00"});
+               
+            }else if(ageArray.indexOf(insuredAge.toString()) == -1) {
+                $('.insuredDOBError').text('Coverage not offered for this age'); 
+                $('.insuredDOB').css({"border":"2px solid #C00"});
+            }else {
+                return true;
+            }
+            $('.basePremium').text('');
+            $('.baseMinimumCoverageAmount').text('');
+            $('.baseCoverageAmount').val('');
+            $('.childCoverageAmount').val('');
+            $('.childPremium').text('');
+            $('.modalDiv').hide();
+            return false;
+        }
+        
+        function validateBasePolicy() {
+            var baseMinimumCoverageAmount=$('.baseMinimumCoverageAmount').text();
+            console.log(baseMinimumCoverageAmount);
+            var baseCoverageAmount=$('.baseCoverageAmount').val();
+            var childCoverageAmount=$('.childCoverageAmount').val();
+            var basePremium=$('.basePremium').val();
+            var childPremium=$('.childPremium').val();
+            var intRegex = /^\d+(\.\d{1,2})?$/;
+
+            if(baseCoverageAmount!='' && !intRegex.test(baseCoverageAmount)) {
+                $('.baseCoverageAmountError').text('Enter a valid number for Base Preferred Coverage'); 
+            }else if(baseCoverageAmount!='' && parseFloat(baseCoverageAmount)>30000) {
+                $('.baseCoverageAmountError').text('Base Coverage Amount should not be greater than 30,000');  
+            }else if(baseCoverageAmount!='' && parseFloat(baseMinimumCoverageAmount) > parseFloat(baseCoverageAmount)) {
+                $('.baseCoverageAmountError').text('Base Coverage Amount should be greater than Base Minimum Coverage ');
+            }else if(baseCoverageAmount!='' && childCoverageAmount!='' && parseFloat(childCoverageAmount) > parseFloat(baseCoverageAmount)) {
+                 
+                $('.baseCoverageAmountError').text('Base Coverage Amount should be greater than Child Coverage Amount');
+            }else {
+                return true;
+            }
+            $('.baseCoverageAmount').css({"border":"2px solid #C00"});
+            $('.baseCoverageAmountError').show();
+            $('.basePremium').text('');
+            $('.modalDiv').hide();
+            return false;  
+        }
+        function validateChildPolicy() {
+            var baseMinimumCoverageAmount=$('.baseMinimumCoverageAmount').text();
+            var baseCoverageAmount=$('.baseCoverageAmount').val();
+            var childCoverageAmount=$('.childCoverageAmount').val();
+            var intRegex = /^\d+(\.\d{1,2})?$/;
+            if(childCoverageAmount!='' && !intRegex.test(childCoverageAmount)) {
+                    $('.childCoverageAmountError').text('Enter a valid number for Child Coverage Amount');
+            } else if(childCoverageAmount!='' && parseFloat(childCoverageAmount) < 1000) {
+                $('.childCoverageAmountError').text('Child  Coverage Amount should be greater than 1000');
+            }else if(childCoverageAmount!='' && baseMinimumCoverageAmount != '' && baseCoverageAmount == '' && parseFloat(childCoverageAmount)>parseFloat(baseMinimumCoverageAmount)) {
+                $('.childCoverageAmountError').text('Child  Coverage Amount should be less than Base Minimum Coverage'); 
+            }
+            else if(childCoverageAmount!='' && baseCoverageAmount != '' && parseFloat(childCoverageAmount) > parseFloat(baseCoverageAmount) ) {
+                $('.childCoverageAmountError').text('Child Coverage Amount should be less than Base Coverage Amount ');
+            }
+            else if(childCoverageAmount!='' && parseFloat(childCoverageAmount) > 10000) {
+                $('.childCoverageAmountError').text('Child Coverage Amount should be less than 10000'); 
+            }else {
+                return true;
+            }
+            $('.childCoverageAmount').css({"border":"2px solid #C00"});
+            $('.childPremium').text('');
+            $('.childCoverageAmountError').show();
+            $('.modalDiv').hide();
+            return false;
+        }
+        function calculateChildPremium() {
+            $('.modalDiv').show();
+            hideError();
+            if(!validatePremiumInput()) return false;
+            if(!validateChildPolicy()) return false;
+            if(!validateBasePolicy()) return false;
+            calculatePremiumAction();
+        }
+        function calculateBasePremium() {
+            $('.modalDiv').show();
+            hideError();
+            if(!validatePremiumInput()) return false;
+            if(!validateBasePolicy()) return false;
+            if(!validateChildPolicy()) return false;
+            calculatePremiumAction();
+        }
+        function deleteChild(delPos) {
+            $('.modalDiv').show();
+            console.log(delPos);
+            hideError();
+            deleteChildAction(delPos);
+        }
+        function addChild() {
+            $('.modalDiv').show();
+            hideError();
+            if($('.spouse').is(":checked")) { 
+                $('.addChildError').text('You cannot add child when spouse is selected');
+                $('.modalDiv').hide();
+                return false;
+            } 
+            if(!childValidation()) return false;
+            addChildAction();
+        }
+        
+        
+        function hideError() {
+            $('.childLastName').each(function(index) {
+               $(this).css({"border":""});
+               $('.childLastNameError'+index).hide();
+            });
+            $('.childFirstName').each(function(index) {
+               $(this).css({"border":""});
+               $('.childFirstNameError'+index).hide();
+            });
+            $('.legalChild').each(function(index) {
+               $(this).css({"border":""});
+               $('.checkBoxError'+index).hide();
+            });
+            $('.childDOB').each(function(index) {
+               $(this).css({"border":""});
+               $('.childDOBError'+index).hide();
+            });
+            $('.childGender').each(function(index) {
+               $(this).css({"border":""});
+               $('.childGenderError'+index).hide();
+            });
+            $('.addChildError').text('');
+            $('.beneficiaryError').text('');
+            $('.pageMessage').hide();
+            $('.baseCoverageAmountError').hide();
+            $('.baseCoverageAmount').css({"border":""});
+            $('.childCoverageAmountError').hide();
+            $('.childCoverageAmount').css({"border":""});
+            
+            for(i=0;i<requiredPayorFieldArray.length;i++) {
+                $('.'+requiredPayorFieldArray[i]+'Error').text(''); 
+                $('.'+requiredPayorFieldArray[i]).css({"border":""});    
+            }
+            for(i=0;i<requiredOwnerFieldArray.length;i++) {
+                $('.'+requiredOwnerFieldArray[i]+'Error').text(''); 
+                $('.'+requiredOwnerFieldArray[i]).css({"border":""});    
+            }
+            for(i=0;i<requiredInsuredFieldArray.length;i++) {
+                $('.'+requiredInsuredFieldArray[i]+'Error').text(''); 
+                $('.'+requiredInsuredFieldArray[i]).css({"border":""});    
+            }
+            for(i=0;i<requiredBeneficiaryFieldArray.length;i++) {
+                $('.'+requiredBeneficiaryFieldArray[i]+'Error').text(''); 
+                $('.'+requiredBeneficiaryFieldArray[i]).css({"border":""});    
+            }
+        }
+        function childValidation() {
+            var errorFlag=false;
+            $('.childFirstName').each(function(index) {
+                var childFirstName=$(this).val();
+                if(childFirstName == null || childFirstName == '') {
+                    errorFlag=true;
+                    $(this).css({"border":"2px solid #C00"});
+                    $('.childFirstNameError'+index).show();
+                }
+            });
+            $('.childLastName').each(function(index) {
+                var childLastName=$(this).val();
+                if(childLastName == null || childLastName == '') {
+                    errorFlag=true;
+                    $(this).css({"border":"2px solid #C00"});
+                    $('.childLastNameError'+index).show();
+                }
+            });
+            $('.legalChild').each(function(index){
+                var legalChild=$(this).is(':checked');
+                if(legalChild == false) {
+                    errorFlag=true;
+                    $('.checkBoxError'+index).show();    
+                }
+            });
+            $('.financialDependent').each(function(index){
+                var financialDependent=$(this).is(':checked');
+                if(financialDependent == false) {
+                    errorFlag=true;
+                    $('.checkBoxError'+index).show();    
+                }
+            });
+            $('.childGender').each(function(index) {
+                var childGender=$(this).val();
+                if(childGender == null || childGender == '') {
+                    errorFlag=true;
+                    $(this).css({"border":"2px solid #C00"});
+                    $('.childGenderError'+index).show();
+                }
+                
+            });
+            $('.childDOB').each(function(index) {
+                var childDOB=$(this).val();
+                if(childDOB == null || childDOB == '') {
+                    errorFlag=true;
+                    $(this).css({"border":"2px solid #C00"});
+                    $('.childDOBError'+index).show();
+                }
+                
+            });
+            if(errorFlag==true) {
+                $('.modalDiv').hide();
+                return false;
+            } else{
+                return true;
+            }
+            
+        }
+        
+        
+        function toggleTab(tab)
+            {
+                hideAll();
+                showTab(tab);
+            }
+            
+            function showTab(tab)
+            {
+                if(tab == 'payor')
+                {
+                   $('.payorHolder').show();
+                   $('.payorTab').removeClass('btn-info');
+                   $('.payorTab').addClass('btn-primary');
+                   $('.methods').val("payor");
+                   
+                }
+                if(tab == 'owner')
+                {
+                    $('.ownerHolder').show();
+                    $('.methods').val("owner");
+                    $('.ownerTab').removeClass('btn-info');
+                    $('.ownerTab').addClass('btn-primary');
+                }
+                if(tab == 'insured')
+                {
+                    $('.insuredHolder').show();
+                    $('.methods').val("insured");
+                    $('.insuredTab').removeClass('btn-info');
+                    $('.insuredTab').addClass('btn-primary');
+                }
+                if(tab == 'beneficiary') 
+                {
+                    $('.beneficiaryHolder').show();
+                    $('.methods').val("beneficiary");
+                    $('.beneficiaryTab').removeClass('btn-info');
+                    $('.beneficiaryTab').addClass('btn-primary');
+                }
+            }
+            function payorPartySearch() {
+                
+                $('.modalDiv').show();
+                hideError();
+                payorPartySearchAction();
+            }
+            function ownerPayorPartySearch() {
+                
+                $('.modalDiv').show();
+                hideError();
+                ownerPayorPartySearchAction();
+            }
+            function beneficiaryRadioFunction() {
+                
+                $('.modalDiv').show();
+                hideError();
+                beneficiaryRadioAction();
+            }
+            
+            function beneficiaryPartySearch() {
+                
+                $('.modalDiv').show();
+                hideError();
+                beneficiaryPartySearchAction();
+            }
+            function ownerPartySearch() {
+                
+                $('.modalDiv').show();
+                hideError();
+                ownerPartySearchAction();
+            }
+            function sameAsPayorInOwnerSearch() {
+                
+                $('.modalDiv').show();
+                hideError();
+                sameAsPayorInOwnerSearchAction();
+            }
+            function insuredRadioFunction() {
+                
+                $('.modalDiv').show();
+                hideError();
+                insuredRadioAction();
+            }
+            function insuredPartySearch() {
+            
+                $('.modalDiv').show();
+                hideError();
+                insuredPartySearchAction();
+            }
+            function hideAll()
+            {
+                $('.payorHolder').hide();
+                $('.ownerHolder').hide();
+                $('.insuredHolder').hide();
+                $('.beneficiaryHolder').hide();
+                $('.payorTab').addClass('btn-info');
+                $('.ownerTab').addClass('btn-info');
+                $('.insuredTab').addClass('btn-info');
+                $('.beneficiaryTab').addClass('btn-info');
+                colorFunction();
+            }
+            function colorFunction() {
+                payorColor=true;
+                beneficiaryColor=true;
+                insuredColor=true;
+                ownerColor=true;
+                imageStr='';
+                for(i=0;i<requiredPayorFieldArray.length;i++) {
+                    if($('.'+requiredPayorFieldArray[i]).val() == '') {
+                        if($('.payorFirstName').val() != '' && $('.payorLastName').val() != '') {
+                            imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/orange-traffic-light.jpg')}" style="height:30px;" />';
+                        }else {
+                            imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/red-traffic-light.jpg')}" style="height:30px;" />';
+                        }
+                        payorColor=false;
+                        break;
+                    }
+                }
+                if(payorColor) {
+                    imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/green-traffic-light.jpg')}" style="height:30px;" />';
+                }
+                $('.payorColor').html(imageStr);
+                for(i=0;i<requiredOwnerFieldArray.length;i++) {
+                    if($('.'+requiredOwnerFieldArray[i]).val() == '') {
+                        if($('.ownerFirstName').val() != '' && $('.ownerLastName').val() != '') {
+                            imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/orange-traffic-light.jpg')}" style="height:30px;" />';
+                        }else {
+                            imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/red-traffic-light.jpg')}" style="height:30px;" />';
+                        }
+                        ownerColor=false;
+                        break;
+                    }
+                }  
+                if(ownerColor) {
+                    imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/green-traffic-light.jpg')}" style="height:30px;" />';
+                }
+                $('.ownerColor').html(imageStr);
+                for(i=0;i<requiredInsuredFieldArray.length;i++) {
+                    if($('.'+requiredInsuredFieldArray[i]).val() == '') {
+                        if($('.insuredFirstName').val() != '' && $('.insuredLastName').val() != '') {
+                            imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/orange-traffic-light.jpg')}" style="height:30px;" />';
+                        }else {
+                            imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/red-traffic-light.jpg')}" style="height:30px;" />';
+                        }
+                        insuredColor=false;
+                        break;
+                    }
+                }  
+                if(insuredColor) {
+                    imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/green-traffic-light.jpg')}" style="height:30px;" />';
+                }
+                $('.insuredColor').html(imageStr);
+                for(i=0;i<requiredBeneficiaryFieldArray.length;i++) {
+                    if($('.'+requiredBeneficiaryFieldArray[i]).val() == '') {
+                        if($('.beneficiaryFirstName').val() != '' && $('.beneficiaryLastName').val() != '') {
+                            imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/orange-traffic-light.jpg')}" style="height:30px;" />';
+                        }else {
+                            imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/red-traffic-light.jpg')}" style="height:30px;" />';
+                        }
+                        beneficiaryColor=false;
+                        break;
+                    }
+                }
+                if(beneficiaryColor) {
+                    imageStr='<img  src="{!URLFOR($Resource.trafficLight, 'trafficLight/green-traffic-light.jpg')}" style="height:30px;" />';
+                }
+                $('.beneficiaryColor').html(imageStr);
+            }
+            function checkBeneficiaryInsuredNotSame() {
+                beneficiaryId=$('.beneficiaryId').val();
+                beneficiaryFirstName=$('.beneficiaryFirstName').val();
+                beneficiaryLastName=$('.beneficiaryLastName').val();
+                beneficiaryGender=$('.beneficiaryGender').val();
+                insuredId=$('.insuredId').val();
+                insuredFirstName=$('.insuredFirstName').val();
+                insuredLastName=$('.insuredLastName').val();
+                insuredGender=$('.insuredGender').val();
+                if((beneficiaryId != '' && insuredId != '' && beneficiaryId == insuredId) ||(insuredFirstName == beneficiaryFirstName && insuredLastName == beneficiaryLastName && insuredGender == beneficiaryGender)) {
+                    $('.beneficiaryError').text('Beneficiary and Insured should not be same person');
+                    $('.modalDiv').hide();
+                    return false;
+                }
+                return true;
+            }
+        $(document).ready(function() {
+            toggleTab("payor");
+            onCompletePremium();
+            
+        });    
+    </script>
+</apex:page>

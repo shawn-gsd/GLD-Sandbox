@@ -1,0 +1,999 @@
+{
+    "properties": [
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "acordStandardsURI", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 12, 
+                "line": 3
+            }, 
+            "type": "String"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "opp", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 17, 
+                "line": 4
+            }, 
+            "type": "Opportunity"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "xml", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 21, 
+                "line": 5
+            }, 
+            "type": "XmlStreamWriter"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "planCodeMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 7
+            }, 
+            "type": "Map"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "paymentCodeMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 13
+            }, 
+            "type": "Map"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "paymentMethodMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 18
+            }, 
+            "type": "Map"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "genderMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 22
+            }, 
+            "type": "Map"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "acctTypeMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 27
+            }, 
+            "type": "Map"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "phoneTypeMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 33
+            }, 
+            "type": "Map"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "prefCommMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 39
+            }, 
+            "type": "Map"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "relationCodeMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 48
+            }, 
+            "type": "Map"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "participants", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 34, 
+                "line": 58
+            }, 
+            "type": "LIST"
+        }, 
+        {
+            "modifiers": [
+                "private"
+            ], 
+            "name": "stateMap", 
+            "visibility": "PRIVATE", 
+            "references": [], 
+            "location": {
+                "column": 26, 
+                "line": 59
+            }, 
+            "type": "Map"
+        }
+    ], 
+    "externalReferences": [], 
+    "innerClasses": [], 
+    "interfaces": [], 
+    "constructors": [
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "AcordXMLHelper", 
+            "parameters": [
+                {
+                    "type": "Opportunity", 
+                    "name": "opp"
+                }, 
+                {
+                    "type": "LIST", 
+                    "name": "participantWrappers"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 12, 
+                "line": 61
+            }, 
+            "type": null
+        }
+    ], 
+    "namespace": null, 
+    "name": "AcordXMLHelper", 
+    "tableDeclaration": {
+        "type": "AcordXMLHelper", 
+        "modifiers": [
+            "public", 
+            "with sharing"
+        ], 
+        "references": [], 
+        "location": {
+            "column": 27, 
+            "line": 1
+        }, 
+        "name": "AcordXMLHelper"
+    }, 
+    "key": "01p550000008g01AAA", 
+    "variables": [
+        {
+            "type": "Opportunity", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 39, 
+                "line": 61
+            }, 
+            "name": "opp"
+        }, 
+        {
+            "type": "LIST", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 75, 
+                "line": 61
+            }, 
+            "name": "participantWrappers"
+        }, 
+        {
+            "type": "PolicyParticipantWrapper", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 38, 
+                "line": 64
+            }, 
+            "name": "parWrapper"
+        }, 
+        {
+            "type": "State__c", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 22, 
+                "line": 72
+            }, 
+            "name": "state"
+        }, 
+        {
+            "type": "Policy_Participants__c", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 40, 
+                "line": 242
+            }, 
+            "name": "par"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 255
+            }, 
+            "name": "fullName"
+        }, 
+        {
+            "type": "Double", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 20, 
+                "line": 284
+            }, 
+            "name": "coverageIdCount"
+        }, 
+        {
+            "type": "Boolean", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 21, 
+                "line": 285
+            }, 
+            "name": "hasChildRider"
+        }, 
+        {
+            "type": "Policy_Participants__c", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 40, 
+                "line": 286
+            }, 
+            "name": "par"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 32, 
+                "line": 294
+            }, 
+            "name": "coverageId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 32, 
+                "line": 326
+            }, 
+            "name": "coverageId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 32, 
+                "line": 374
+            }, 
+            "name": "inflationFighterString"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 32, 
+                "line": 375
+            }, 
+            "name": "inflationFighterCode"
+        }, 
+        {
+            "type": "Attachment", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 385
+            }, 
+            "name": "att"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 387
+            }, 
+            "name": "descriptionString"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 388
+            }, 
+            "name": "fileTypeSuffix"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 389
+            }, 
+            "name": "mimeTypeTC"
+        }, 
+        {
+            "type": "Integer", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 17, 
+                "line": 434
+            }, 
+            "name": "childNumber"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 16, 
+                "line": 435
+            }, 
+            "name": "addressNumber"
+        }, 
+        {
+            "type": "Policy_Participants__c", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 36, 
+                "line": 436
+            }, 
+            "name": "par"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 439
+            }, 
+            "name": "partyId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 32, 
+                "line": 520
+            }, 
+            "name": "cleanPhone"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 32, 
+                "line": 521
+            }, 
+            "name": "areaCode"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 32, 
+                "line": 522
+            }, 
+            "name": "dialNumber"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 617
+            }, 
+            "name": "partyId"
+        }, 
+        {
+            "type": "Integer", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 17, 
+                "line": 654
+            }, 
+            "name": "relationNumber"
+        }, 
+        {
+            "type": "Integer", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 17, 
+                "line": 655
+            }, 
+            "name": "childNumber"
+        }, 
+        {
+            "type": "Integer", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 17, 
+                "line": 656
+            }, 
+            "name": "beneficiaryNumber"
+        }, 
+        {
+            "type": "Boolean", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 17, 
+                "line": 658
+            }, 
+            "name": "isFirstChild"
+        }, 
+        {
+            "type": "Policy_Participants__c", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 36, 
+                "line": 659
+            }, 
+            "name": "par"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 663
+            }, 
+            "name": "relationId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 683
+            }, 
+            "name": "relationId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 684
+            }, 
+            "name": "childId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 707
+            }, 
+            "name": "relationId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 729
+            }, 
+            "name": "relationId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 730
+            }, 
+            "name": "beneficiaryId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 24, 
+                "line": 753
+            }, 
+            "name": "relationId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 16, 
+                "line": 780
+            }, 
+            "name": "relationId"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 52, 
+                "line": 819
+            }, 
+            "name": "name"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 64, 
+                "line": 819
+            }, 
+            "name": "content"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 62, 
+                "line": 826
+            }, 
+            "name": "name"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 74, 
+                "line": 826
+            }, 
+            "name": "content"
+        }, 
+        {
+            "type": "Map", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 101, 
+                "line": 826
+            }, 
+            "name": "attributeMap"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 20, 
+                "line": 829
+            }, 
+            "name": "s"
+        }, 
+        {
+            "type": "Date", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 35, 
+                "line": 837
+            }, 
+            "name": "d"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 16, 
+                "line": 838
+            }, 
+            "name": "formattedDate"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 16, 
+                "line": 841
+            }, 
+            "name": "monthText"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 16, 
+                "line": 847
+            }, 
+            "name": "dayText"
+        }, 
+        {
+            "type": "Datetime", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 43, 
+                "line": 855
+            }, 
+            "name": "dt"
+        }, 
+        {
+            "type": "String", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 16, 
+                "line": 856
+            }, 
+            "name": "dateTimeString"
+        }, 
+        {
+            "type": "Integer", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 17, 
+                "line": 857
+            }, 
+            "name": "offsetMS"
+        }, 
+        {
+            "type": "Integer", 
+            "modifiers": [], 
+            "references": [], 
+            "location": {
+                "column": 17, 
+                "line": 858
+            }, 
+            "name": "hoursOffset"
+        }
+    ], 
+    "id": "01p550000008g01AAA", 
+    "methods": [
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "getXml", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 19, 
+                "line": 87
+            }, 
+            "returnType": "String", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "write", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 92
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "writeAuth", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 130
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "writeBody", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 158
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "writePolicy", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 214
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "writeLife", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 274
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "writeApplicationInfo", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 346
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "writeAttachment", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 383
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "writeParties", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 432
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "writeRelations", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 652
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "addRelationStaticElements", 
+            "parameters": [], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 811
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "addSingleElement", 
+            "parameters": [
+                {
+                    "type": "String", 
+                    "name": "name"
+                }, 
+                {
+                    "type": "String", 
+                    "name": "content"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 819
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "startElementWithAttributes", 
+            "parameters": [
+                {
+                    "type": "String", 
+                    "name": "name"
+                }, 
+                {
+                    "type": "String", 
+                    "name": "content"
+                }, 
+                {
+                    "type": "Map", 
+                    "name": "attributeMap"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 28, 
+                "line": 826
+            }, 
+            "returnType": "XmlStreamWriter", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "formatDate", 
+            "parameters": [
+                {
+                    "type": "Date", 
+                    "name": "d"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 19, 
+                "line": 837
+            }, 
+            "returnType": "String", 
+            "type": null
+        }, 
+        {
+            "modifiers": [
+                "public"
+            ], 
+            "name": "formatDateTime", 
+            "parameters": [
+                {
+                    "type": "Datetime", 
+                    "name": "dt"
+                }
+            ], 
+            "visibility": "PUBLIC", 
+            "references": [], 
+            "location": {
+                "column": 19, 
+                "line": 855
+            }, 
+            "returnType": "String", 
+            "type": null
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+<apex:page controller="PolicySummaryController">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <apex:includeScript value="/support/console/26.0/integration.js"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <apex:pageMessages ></apex:pageMessages>
+        
+        <apex:outputPanel id="detailPanel" rendered="{!OpportunityId != ''}">
+            <div class="container">
+                <div class="Semibold 24px">
+                    <h1>Policy Summary</h1>
+                </div>
+                <div class="row">
+                    <div class="col-md-6  col-centered">
+                        <apex:outputText value="{!OwnerFirstName}"></apex:outputText> 
+                    </div>
+                    <div class="col-md-6  col-centered">
+                        <apex:outputText value="{!ownerLastName}"></apex:outputText>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6  col-centered">
+                        <apex:outputText value="{!payorFirstName}"></apex:outputText>
+                    </div>
+                    <div class="col-md-6  col-centered">
+                        <apex:outputText value="{!payorLastName}"></apex:outputText>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6  col-centered">
+                        <apex:outputText value="{!benFirstName}"></apex:outputText>
+                    </div>
+                    <div class="col-md-6 col-centered">
+                        <apex:outputText value="{!benLastName}"></apex:outputText>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6  col-centered">
+                        <apex:outputText value="{!insuredFirstName}"></apex:outputText>
+                    </div>
+                    <div class="col-md-6 col-centered">
+                        <apex:outputText value="{!insuredLastName}"></apex:outputText>
+                    </div>
+                </div>
+            </div>
+        </apex:outputPanel>
+</apex:page>

@@ -1,0 +1,128 @@
+<apex:page controller="QuoteSummary" standardstyleSheets="false" showheader="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" >
+    <head>
+        <apex:includeScript value="/support/console/26.0/integration.js"/>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <style>
+            .modal-content {
+              overflow:auto;
+            }
+            .modalDiv {
+            position:   fixed;
+            z-index:    1000;
+            top:        0;
+            left:       0;
+            height:     100%;
+            width:      100%;
+            background: rgba( 255, 255, 255, .8 ) 
+                        url('/img/loading.gif') 
+                        50% 50% 
+                        no-repeat;  
+            }
+        </style>
+    </head>
+    <apex:form >
+        <div class = "modalDiv" style = "display:none;">  
+            <p style="position: fixed; padding-top: 25%;font-weight: bold;color: black;padding-left: 46%;font-size: 19px;" id="msgBlock"><b> Processing...</b></p>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3">
+                    <apex:outputPanel id="showQuote" styleClass="showQuote">
+                    <apex:outputPanel styleClass="innerQuote" id="innerQuote">
+                        <div class="row" style="width:100%;">
+                            <div class="col-sm-6" style="width:50%;display:inline-block;float:left;"><apex:outputLabel >Quote</apex:outputLabel></div>
+                            <div class="col-sm-6" style="width:50%;display:inline-block;float:left;"><apex:outputLabel >Premium rate</apex:outputLabel></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12" style="margin-bottom:5%;"></div>
+                        </div>
+                        <apex:repeat value="{!quoteList}" var="quote">
+                            <div class="row" style="width:100%;">
+                                <div class="col-sm-6" style="width:50%;display:inline-block;float:left;"><apex:outputField value="{!quote.Quote_Nickname__c}"/></div>
+                                <div class="col-sm-6" style="width:50%;display:inline-block;float:left;"><input type="text" value="{!quote.Base_Annual_Premium__c}" class="form-control" disabled='true'/></div>
+                            </div>
+          
+                            <apex:outputPanel rendered="{!quote.Child_Rider__c}">
+                                <div class="row">
+                                    <div class="col-sm-12" style="margin-bottom:1%;"></div>
+                                </div>
+                                <div class="row" style="width:100%;">
+                                    <div class="col-sm-2" style="width:10%;display:inline-block;float:left;"></div>
+                                    <div class="col-sm-4"  style="width:40%;display:inline-block;float:left;">Child</div>
+                                    <div class="col-sm-6" style="width:50%;display:inline-block;float:left;"><input type="text" value="{!quote.Child_Annual_Premium__c}" class="form-control" disabled='true'/></div>
+                                 </div>
+                             </apex:outputPanel>  
+                             <div class="row">
+                                <div style="margin-bottom:1%;"></div>
+                             </div>  
+                        </apex:repeat>
+                        
+                        <div class="row">
+                                <div style="margin-bottom:5%;"></div>
+                             </div>
+                        <div class="row" style="width:100%;">
+                            <div class="col-sm-6" style="width:50%;display:inline-block;float:left;"><apex:outputLabel >Total Premium</apex:outputLabel></div>
+                            <div class="col-sm-6" style="width:50%;display:inline-block;float:left;"><input type="text" value="{!totalPremium}" class="form-control" disabled="true" /> </div>
+                        </div>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!quoteList.size > 0}">
+                            <apex:commandButton onclick="modalSummary();" value="Convert" reRender="none" styleClass="btn btn-success"/>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <div id="quoteSummaryModal" class="modal fade quoteSummaryModal" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content" id="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Quote Summary</h4>
+                        </div>
+                        <div class="modal-body">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <apex:actionFunction action="{!generateSummary}" name="modalAction" reRender="showQuote" oncomplete="showModal();"/>
+        
+        <apex:actionFunction action="{!generateSummary}" name="quoteSummary" reRender="showQuote" oncomplete="hideModalDiv();">
+            <apex:param name="accountId" value=""/>
+        </apex:actionFunction>
+    </apex:form>
+    <script>
+        $(document).ready(function() {
+            $('.modalDiv').show();
+            if (sforce.console.isInConsole()) {
+                sforce.console.getEnclosingPrimaryTabObjectId(function(showObjectId){
+                    var accountId=showObjectId.id;
+                    if(accountId != '') {
+                        quoteSummary(accountId);    
+                    }
+                });
+            } 
+        });
+        function modalSummary() {
+            $('.modalDiv').show();
+            modalAction();
+        }
+        function showModal() {
+            $('.quoteSummaryModal').modal('toggle');
+            $(".modal-body").html( $( ".innerQuote" ).html());
+            $('.modalDiv').hide();
+                $('#'+$('.modal-content').attr('id')).height($(window).height() - 46);
+            
+            
+            
+        }
+        function hideModalDiv() {
+            $('.modalDiv').hide();
+            
+        }
+    </script>
+</apex:page>

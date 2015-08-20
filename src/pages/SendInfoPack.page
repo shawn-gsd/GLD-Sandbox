@@ -1,0 +1,79 @@
+<apex:page standardController="Account" extensions="SendInfoPackController" showHeader="false" standardStyleSheets="true" >
+    <!---
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    -->
+
+    <script src="/support/console/34.0/integration.js" type="text/javascript"></script>
+    
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        
+        <!--
+        <style>
+            .btn-custom {
+                display: inline-block;
+                padding: 6px 12px;
+                margin-bottom: 0;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1.42857143;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                -ms-touch-action: manipulation;
+                touch-action: manipulation;
+                cursor: pointer;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                background-image: none;
+                border: 1px solid transparent;
+                border-radius: 4px;
+            }
+        </style>
+        -->    
+        <apex:form > 
+            <apex:pageBlock >
+                <apex:pageBLockButtons location="bottom">
+                    <apex:commandButton value="Confirm Address" action="{!saveShippingAddress}" reRender="messagePanel" styleClass="btn-custom btn-success" oncomplete="refreshDetailPage();" />
+                </apex:pageBLockButtons>
+                <apex:outputPanel id="messagePanel">
+                    <apex:pageMessages />
+                </apex:outputPanel>
+
+                <apex:pageBlockSection title="{!Account.Name}" columns="1" collapsible="false">
+                    <pca:Address street="{!Account.ShippingStreet}" state="{!Account.ShippingStateCode}" city="{!Account.ShippingCity}" zip="{!Account.ShippingPostalCode}" country="{!Account.ShippingCountry}"/> 
+
+                    <apex:outputText value="{!success}" styleClass="successFlag" style="display:none;"/>
+               
+                    </apex:pageBlockSection>
+            </apex:pageBlock>    
+        </apex:form> 
+
+    
+    <script>
+        function refreshDetailPage() {
+            var success=$('.successFlag').text();
+            if(success == 'true') {
+                console.log('success was true');
+                if(sforce.console.isInConsole()){
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){ 
+                        console.log("id: " + primaryResult.id);
+                        sforce.console.refreshPrimaryTabById(primaryResult.id,true,function(result){
+                            console.log("refresh results: " + result);
+                            sforce.console.getFocusedSubtabId(function(focusId){
+                                console.log("focus subtab id: " + focusId);
+                                sforce.console.closeTab(focusId.id);
+                            });
+                        });
+                    });
+                }
+             }   
+        }
+        $(document).ready( function() {
+            $('.btn-custom').removeClass('btn');
+        });
+        
+    </script>
+</apex:page>

@@ -1,0 +1,24 @@
+<apex:page standardController="Quote__c" extensions="DummyQuoteGenerator">
+    <apex:includeScript value="/support/console/26.0/integration.js"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            alert('hi');
+            var quoteId = '{!quoId}';
+            alert(quoteId);
+            var policyOwner='{!accountId}';
+            if(quoteId != '') {
+                alert(quoteId);
+                var redirectUrl = '/apex/QuoteGenerator?accId='+policyOwner+'&mode=edit&quoteId='+quoteId; 
+                if (sforce.console.isInConsole()) { 
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){
+                        sforce.console.getEnclosingTabId(function(result) {
+                        alert('hi');
+                            sforce.console.openSubtab(primaryResult.id, redirectUrl, true, 'Quote Generator',result.id); 
+                        });
+                    }); 
+                } 
+            }
+        });
+    </script> 
+</apex:page>

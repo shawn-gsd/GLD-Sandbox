@@ -1,0 +1,420 @@
+<apex:page renderAs="pdf" applyHtmlTag="false" showheader="false" sidebar="false" standardStylesheets="false">
+    <head>
+    <STYLE>
+
+    @page{
+        size:1600px 2100px;
+        margin: 0px 0px 0px 0px;
+    }
+
+    #page_1 {position:relative; overflow: hidden;margin: 27px 0px 0px 0px;padding: 0px;border: none;width: 816px;height: 1029px;}
+    #page_1 #id_1 {border:none;margin: 33px 0px 0px 271px;padding: 0px;border:none;width: 545px;overflow: hidden;}
+    #page_1 #id_2 {border:none;margin: 38px 0px 0px 0px;padding: 0px;border:none;width: 816px;overflow: hidden;}
+    #page_1 #id_2 #id_2_1 {float:left;border:none;margin: 392px 0px 0px 0px;padding: 0px;border:none;width: 48px;overflow: hidden;}
+    #page_1 #id_2 #id_2_2 {float:left;border:none;margin: 0px 0px 0px 0px;padding: 0px;border:none;width: 768px;overflow: hidden;}
+    #page_1 #id_3 {border:none;margin: 9px 0px 0px 56px;padding: 0px;border:none;width: 760px;overflow: hidden;}
+    #page_1 #id_4 {border:none;margin: 70px 0px 0px 46px;padding: 0px;border:none;width: 720px;overflow: hidden;}
+
+    #page_1 #dimg1 {position:absolute;top:0px;left:0px;z-index:-1;width:816px;height:1029px;}
+    #page_1 #dimg1 #img1 {width:816px;height:1029px;}
+
+
+
+
+    #page_2 {position:relative; overflow: hidden;margin: 64px 0px 0px 0px;padding: 0px;border: none;width: 816px;height: 992px;}
+    #page_2 #id_1 {border:none;margin: 0px 0px 0px 48px;padding: 0px;border:none;width: 768px;overflow: hidden;}
+    #page_2 #id_2 {border:none;margin: 105px 0px 0px 49px;padding: 0px;border:none;width: 720px;overflow: hidden;}
+
+    #page_2 #dimg1 {position:absolute;top:0px;left:0px;z-index:-1;width:816px;height:992px;}
+    #page_2 #dimg1 #img1 {width:816px;height:992px;}
+
+
+
+
+    .dclr {clear:both;float:none;height:1px;margin:0px;padding:0px;overflow:hidden;}
+
+    .ft0{font: bold 25px 'Arial';color: #82026c;line-height: 30px;}
+    .ft1{font: bold 19px 'Arial';line-height: 23px;}
+    .ft2{font: bold 13px 'Arial';color: #726a69;line-height: 16px;}
+    .ft3{font: bold 18px 'Arial';color: #007a90;line-height: 21px;}
+    .ft4{font: bold 26px 'Arial';line-height: 30px;}
+    .ft5{font: 16px 'Arial';color: #ffffff;line-height: 18px;}
+    .ft6{font: bold 13px 'Arial';color: #262626;line-height: 16px;}
+    .ft7{font: 'Arial';line-height: 1px;}
+    .ft8{font: 1px 'Arial';line-height: 3px;}
+    .ft9{font: bold 12px 'Arial';color: #262626;line-height: 15px;}
+    .ft10{font: 1px 'Arial';line-height: 4px;}
+    .ft11{font: 1px 'Arial';line-height: 6px;}
+    .ft12{font: bold 13px 'Arial';color: #ffffff;line-height: 16px;}
+    .ft13{font: 1px 'Arial';line-height: 2px;}
+    .ft14{font: bold 12px 'Arial';color: #726a69;line-height: 15px;}
+    .ft15{font: italic bold 13px 'Arial';color: #262626;line-height: 16px;}
+    .ft16{font: bold 13px 'Arial';color: #82026c;line-height: 16px;}
+    .ft17{font: 13px 'Arial';color: #262626;line-height: 16px;}
+
+    .p0{text-align: left;padding-left: 142px;margin-top: 0px;margin-bottom: 0px;}
+    .p1{text-align: left;padding-left: 328px;padding-right: 50px;margin-top: 4px;margin-bottom: 0px;text-indent: -328px;}
+    .p2{text-align: left;padding-left: 173px;margin-top: 1px;margin-bottom: 0px;}
+    .p3{text-align: left;padding-left: 157px;margin-top: 16px;margin-bottom: 0px;}
+    .p4{text-align: left;padding-left: 36px;margin-top: 0px;margin-bottom: 0px;}
+    .p5{text-align: right;padding-right: 5px;margin-top: 24px;margin-bottom: 0px;}
+    .p6{text-align: left;padding-left: 8px;margin-top: 0px;margin-bottom: 0px;}
+    .p7{text-align: left;padding-left: 8px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+    .p8{text-align: left;margin-top: 8px;margin-bottom: 0px}
+    .p9{text-align: left;padding-left: 8px;margin-top: 9px;-bottom: 0px;}
+    .p10{text-align: left;padding-left: 8px;margin-top: 7px;margin-bottom: 0px;}
+    .p11{text-align: right;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+    .p12{text-align: left;padding-left: 51px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+    .p13{text-align: right;padding-right: 37px;margin-top: 56px;margin-bottom: 0px;}
+    .p14{text-align: left;padding-right: 146px;margin-top: 0px;margin-bottom: 0px;}
+    .p15{text-align: left;margin-top: 28px;margin-bottom: 0px;}
+    .p16{text-align: left;padding-left: 8px;margin-top: 12px;margin-bottom: 0px;}
+    .p17{text-align: left;padding-left: 48px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+    .p18{text-align: left;padding-left: 8px;padding-right: 68px;margin-top: 56px;margin-bottom: 0px;}
+    .p19{text-align: left;padding-left: 8px;padding-right: 84px;margin-top: 17px;margin-bottom: 0px;}
+    .p20{text-align: left;padding-left: 8px;padding-right: 68px;margin-top: 16px;margin-bottom: 0px;}
+    .p21{text-align: left;padding-left: 8px;padding-right: 88px;margin-top: 3px;margin-bottom: 0px;}
+    .p22{text-align: left;padding-left: 8px;padding-right: 77px;margin-top: 33px;margin-bottom: 0px;}
+    .p23{text-align: left;padding-left: 8px;margin-top: 34px;margin-bottom: 0px;}
+    .p24{text-align: left;padding-left: 3px;padding-right: 94px;margin-top: 33px;margin-bottom: 0px;}
+
+    .td0{padding: 0px;margin: 0px;width: 288px;vertical-align: bottom;background: #e6e6e6;}
+    .td1{padding: 0px;margin: 0px;width: 158px;vertical-align: bottom;background: #e6e6e6;}
+    .td2{padding: 0px;margin: 0px;width: 178px;vertical-align: bottom;background: #e6e6e6;}
+    .td3{padding: 0px;margin: 0px;width: 96px;vertical-align: bottom;background: #e6e6e6;}
+    .td4{padding: 0px;margin: 0px;width: 336px;vertical-align: bottom;background: #e6e6e6;}
+    .td5{padding: 0px;margin: 0px;width: 192px;vertical-align: bottom;background: #e6e6e6;}
+    .td6{padding: 0px;margin: 0px;width: 336px;vertical-align: bottom;}
+    .td7{padding: 0px;margin: 0px;width: 192px;vertical-align: bottom;}
+    .td8{padding: 0px;margin: 0px;width: 96px;vertical-align: bottom;}
+    .td9{padding: 0px;margin: 0px;width: 412px;vertical-align: bottom;background: #e6e6e6;}
+    .td10{padding: 0px;margin: 0px;width: 116px;vertical-align: bottom;background: #e6e6e6;}
+    .td11{padding: 0px;margin: 0px;width: 193px;vertical-align: bottom;background: #e6e6e6;}
+    .td12{padding: 0px;margin: 0px;width: 9px;vertical-align: bottom;}
+    .td13{padding: 0px;margin: 0px;width: 1px;vertical-align: bottom;background: #e6e6e6;}
+    .td14{padding: 0px;margin: 0px;width: 412px;vertical-align: bottom;}
+    .td15{padding: 0px;margin: 0px;width: 116px;vertical-align: bottom;}
+    .td16{padding: 0px;margin: 0px;width: 1px;vertical-align: bottom;}
+    .td17{border-bottom: #82026c 1px solid;padding: 0px;margin: 0px;width: 412px;vertical-align: bottom;background: #82026c;}
+    .td18{border-bottom: #82026c 1px solid;padding: 0px;margin: 0px;width: 116px;vertical-align: bottom;background: #82026c;}
+    .td19{border-bottom: #82026c 1px solid;padding: 0px;margin: 0px;width: 192px;vertical-align: bottom;background: #82026c;}
+    .td20{border-bottom: #82026c 1px solid;padding: 0px;margin: 0px;width: 1px;vertical-align: bottom;background: #82026c;}
+    .td21{padding: 0px;margin: 0px;width: 10px;vertical-align: bottom;}
+    .td22{padding: 0px;margin: 0px;width: 240px;vertical-align: bottom;background: #e6e6e6;}
+    .td23{padding: 0px;margin: 0px;width: 381px;vertical-align: bottom;}
+    .td24{padding: 0px;margin: 0px;width: 339px;vertical-align: bottom;}
+    .td25{padding: 0px;margin: 0px;width: 232px;vertical-align: bottom;}
+    .td26{padding: 0px;margin: 0px;width: 288px;vertical-align: bottom;}
+    .td27{padding: 0px;margin: 0px;width: 144px;vertical-align: bottom;}
+    .td28{padding: 0px;margin: 0px;width: 34px;vertical-align: bottom;}
+    .td29{padding: 0px;margin: 0px;width: 528px;vertical-align: bottom;background: #e6e6e6;}
+    .td30{padding: 0px;margin: 0px;width: 520px;vertical-align: bottom;}
+    .td31{padding: 0px;margin: 0px;width: 28px;vertical-align: bottom;}
+    .td32{padding: 0px;margin: 0px;width: 66px;vertical-align: bottom;}
+    .td33{padding: 0px;margin: 0px;width: 380px;vertical-align: bottom;}
+    .td34{padding: 0px;margin: 0px;width: 340px;vertical-align: bottom;}
+
+    .tr0{height: 20px;}
+    .tr1{height: 30px;}
+    .tr2{height: 3px;}
+    .tr3{height: 29px;}
+    .tr4{height: 4px;}
+    .tr5{height: 19px;}
+    .tr6{height: 18px;}
+    .tr7{height: 31px;}
+    .tr8{height: 59px;}
+    .tr9{height: 26px;}
+    .tr10{height: 23px;}
+    .tr11{height: 6px;}
+    .tr12{height: 21px;}
+    .tr13{height: 2px;}
+    .tr14{height: 28px;}
+    .tr15{height: 15px;}
+    .tr16{height: 55px;}
+    .tr17{height: 53px;}
+    .tr18{height: 16px;}
+    .tr19{height: 56px;}
+
+    .t0{width: 720px;margin-top: 5px;font: bold 13px 'Arial';color: #262626;}
+    .t1{width: 730px;margin-top: 6px;font: bold 13px 'Arial';color: #262626;}
+    .t2{width: 720px;font: bold 12px 'Arial';color: #726a69;}
+    .t3{width: 698px;margin-left: 8px;margin-top: 31px;font: bold 13px 'Arial';color: #262626;}
+    .t4{width: 720px;font: bold 13px 'Arial';color: #262626;}
+    .t5{width: 548px;margin-left: 8px;margin-top: 5px;font: bold 12px 'Arial';color: #262626;}
+    .t6{width: 548px;margin-left: 8px;margin-top: 3px;font: bold 12px 'Arial';color: #262626;}
+    .t7{width: 586px;margin-left: 8px;margin-top: 1px;font: bold 13px 'Arial';color: #262626;}
+
+    </STYLE>
+    </head>
+
+    <DIV id="page_1">
+    <DIV id="dimg1">
+    <!--<IMG src="2%20Application%20Form_images/2%20Application%20Form1x1.jpg" id="img1">-->
+    </DIV>
+
+
+    <DIV class="dclr"></DIV>
+    <DIV id="id_1">
+    <P class="p0 ft0">FUNERAL PROTECTION PLAN</P>
+    <P class="p1 ft1">Issued by The Savings Bank Life Insurance Company of Massachusetts</P>
+    <P class="p2 ft2">[1 Linscott Road • Woburn, MA 01801 • <NOBR>800-694-7254]</NOBR></P>
+    <P class="p3 ft3">APPLICATION FORM FOR LIFE INSURANCE</P>
+    </DIV>
+    <DIV id="id_2">
+    <DIV id="id_2_1">
+    <P class="p4 ft4">[</P>
+    <P class="p5 ft4">[</P>
+    </DIV>
+    <DIV id="id_2_2">
+    <P class="p6 ft5">1. WHO WILL BE INSURED?</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t0">
+    <TR>
+        <TD class="tr0 td0"><P class="p7 ft6">Full name</P></TD>
+        <TD class="tr0 td1"><P class="p8 ft6">Date of birth</P></TD>
+        <TD class="tr0 td2"><P class="p8 ft6">Social security number</P></TD>
+        <TD class="tr0 td3"><P class="p8 ft6">Gender</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr1 td0"><P class="p8 ft7">Sample T. Williams</P></TD>
+        <TD class="tr1 td1"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr1 td2"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr1 td3"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    </TABLE>
+    <P class="p9 ft5">2. WHO WILL OWN THIS PLAN?</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t0">
+    <TR>
+        <TD class="tr0 td4"><P class="p7 ft6">Full name</P></TD>
+        <TD class="tr0 td5"><P class="p8 ft6">Social security number</P></TD>
+        <TD colspan="2" class="tr0 td5"><P class="p8 ft6">Relationship to Insured</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr1 td4"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr1 td5"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr1 td3"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr1 td3"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr2 td6"><P class="p8 ft8">&nbsp;</P></TD>
+        <TD class="tr2 td7"><P class="p8 ft8">&nbsp;</P></TD>
+        <TD class="tr2 td8"><P class="p8 ft8">&nbsp;</P></TD>
+        <TD class="tr2 td8"><P class="p8 ft8">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr0 td4"><P class="p7 ft6">Home address</P></TD>
+        <TD class="tr0 td5"><P class="p8 ft9">City</P></TD>
+        <TD class="tr0 td3"><P class="p8 ft6">State</P></TD>
+        <TD class="tr0 td3"><P class="p8 ft6">Zip</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr3 td4"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr3 td5"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr3 td3"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr3 td3"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr4 td6"><P class="p8 ft10">&nbsp;</P></TD>
+        <TD class="tr4 td7"><P class="p8 ft10">&nbsp;</P></TD>
+        <TD class="tr4 td8"><P class="p8 ft10">&nbsp;</P></TD>
+        <TD class="tr4 td8"><P class="p8 ft10">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr5 td4"><P class="p7 ft6">Mailing address</P></TD>
+        <TD class="tr5 td5"><P class="p8 ft9">City</P></TD>
+        <TD class="tr5 td3"><P class="p8 ft6">State</P></TD>
+        <TD class="tr5 td3"><P class="p8 ft6">Zip</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr1 td4"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr1 td5"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD colspan="2" class="tr1 td5"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr4 td6"><P class="p8 ft10">&nbsp;</P></TD>
+        <TD class="tr4 td7"><P class="p8 ft10">&nbsp;</P></TD>
+        <TD colspan="2" class="tr4 td7"><P class="p8 ft10">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr6 td4"><P class="p7 ft6">Email</P></TD>
+        <TD class="tr6 td5"><P class="p8 ft6">Phone number</P></TD>
+        <TD colspan="2" class="tr6 td5"><P class="p8 ft6">Preferred method of contact</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr7 td4"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr7 td5"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr7 td3"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr7 td3"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    </TABLE>
+    <P class="p10 ft5">3. WHAT COVERAGE IS REQUIRED?</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t1">
+    <TR>
+        <TD class="tr0 td9"><P class="p7 ft6">Coverage Amount</P></TD>
+        <TD class="tr0 td10"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD colspan="2" class="tr0 td11"><P class="p8 ft6">Inflation Fighter</P></TD>
+        <TD class="tr0 td12"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr3 td9"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr3 td10"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr3 td5"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr3 td13"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD rowspan="3" class="tr8 td12"><P class="p11 ft4">]</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr4 td14"><P class="p8 ft10">&nbsp;</P></TD>
+        <TD class="tr4 td15"><P class="p8 ft10">&nbsp;</P></TD>
+        <TD class="tr4 td7"><P class="p8 ft10">&nbsp;</P></TD>
+        <TD class="tr4 td16"><P class="p8 ft10">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr9 td9"><P class="p7 ft6">Children’s Coverage Amount</P></TD>
+        <TD class="tr9 td10"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr9 td5"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr9 td13"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr10 td9"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr10 td10"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr10 td5"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr10 td13"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr10 td12"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr11 td14"><P class="p8 ft11">&nbsp;</P></TD>
+        <TD class="tr11 td15"><P class="p8 ft11">&nbsp;</P></TD>
+        <TD class="tr11 td7"><P class="p8 ft11">&nbsp;</P></TD>
+        <TD class="tr11 td16"><P class="p8 ft11">&nbsp;</P></TD>
+        <TD class="tr11 td12"><P class="p8 ft11">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr0 td17"><P class="p7 ft12">Children to be insured</P></TD>
+        <TD class="tr0 td18"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr0 td19"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr0 td20"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr12 td12"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr0 td9"><P class="p7 ft6">Full name</P></TD>
+        <TD class="tr0 td10"><P class="p8 ft6">Date of birth</P></TD>
+        <TD class="tr0 td5"><P class="p12 ft6">Gender</P></TD>
+        <TD colspan="2" class="tr0 td21"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr13 td9"><P class="p8 ft13">&nbsp;</P></TD>
+        <TD class="tr13 td10"><P class="p8 ft13">&nbsp;</P></TD>
+        <TD class="tr13 td5"><P class="p8 ft13">&nbsp;</P></TD>
+        <TD class="tr13 td16"><P class="p8 ft13">&nbsp;</P></TD>
+        <TD class="tr13 td12"><P class="p8 ft13">&nbsp;</P></TD>
+    </TR>
+    </TABLE>
+    <P class="p13 ft4">]</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t0">
+    <TR>
+        <TD class="tr0 td0"><P class="p7 ft6">Beneficiary</P></TD>
+        <TD class="tr0 td22"><P class="p8 ft6">Date of birth</P></TD>
+        <TD class="tr0 td5"><P class="p8 ft6">Relationship to Insured</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr14 td0"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr14 td22"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr14 td5"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    </TABLE>
+    </DIV>
+    </DIV>
+    <DIV id="id_3">
+    <P class="p14 ft6">Do you have existing life insurance or annuity contracts with The Savings Bank Life Insurance Company of Massachusetts or any other company?</P>
+    <P class="p15 ft6">Do you plan to replace, cancel or change any other life insurance or annuity with this Plan?</P>
+    </DIV>
+    <DIV id="id_4">
+    <TABLE cellpadding="0" cellspacing="0" class="t2">
+    <TR>
+        <TD class="tr15 td23"><P class="p8 ft14"><NOBR>ICC15-FPP-A</NOBR></P></TD>
+        <TD class="tr15 td24"><P class="p11 ft14">0515</P></TD>
+    </TR>
+    </TABLE>
+    </DIV>
+    </DIV>
+    <DIV id="page_2">
+    <DIV id="dimg1">
+    <!--<IMG src="2%20Application%20Form_images/2%20Application%20Form2x1.jpg" id="img1">-->
+    </DIV>
+
+
+    <DIV class="dclr"></DIV>
+    <DIV id="id_1">
+    <P class="p6 ft5">4. PAYING FOR COVERAGE</P>
+    <P class="p16 ft6">[Full name and billing address (if different from the Owner)]</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t3">
+    <TR>
+        <TD class="tr0 td25"><P class="p8 ft6">Initial payment amount</P></TD>
+        <TD class="tr0 td26"><P class="p17 ft6">Billing frequency</P></TD>
+        <TD class="tr0 td27"><P class="p8 ft6">[Monthly billing day]</P></TD>
+        <TD class="tr0 td28"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr16 td25"><P class="p8 ft6">[Bank name]</P></TD>
+        <TD class="tr16 td26"><P class="p8 ft6">[Bank routing number]</P></TD>
+        <TD class="tr16 td27"><P class="p8 ft9">[Bank account number]</P></TD>
+        <TD class="tr16 td28"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr17 td25"><P class="p8 ft6">[Credit card/Debit card]</P></TD>
+        <TD class="tr17 td26"><P class="p8 ft6">[Visa, Mastercard or American Express]</P></TD>
+        <TD class="tr17 td27"><P class="p8 ft6">[Expiration date]</P></TD>
+        <TD class="tr17 td28"><P class="p8 ft9">[CVV]</P></TD>
+    </TR>
+    </TABLE>
+    <P class="p18 ft15">Any person who knowingly presents a false statement in an application for insurance may be guilty of a criminal of- fense and subject to penalties under state law.</P>
+    <P class="p16 ft5">5. AGREEMENTS</P>
+    <P class="p19 ft17"><SPAN class="ft16">THE OWNER </SPAN>I understand that from the moment my signed and dated application is accepted by SBLI, the Proposed Insured will be covered for Accidental Death for a temporary period. Accidental Death means death that is the direct result of an accident, that occurred after signing this application form, that is not intentionally <NOBR>self-inflicted,</NOBR> and which is independent of sickness and all other causes. The temporary period is the time between SBLI accepting Your signed application form and the Issue Date of Your Plan; and</P>
+    <P class="p20 ft17">I agree that the statements and answers provided within the entire application form are true, complete, and correct to the best of my knowledge and belief.</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t4">
+    <TR>
+        <TD class="tr6 td29"><P class="p7 ft6">Signature</P></TD>
+        <TD class="tr6 td5"><P class="p8 ft6">Date</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr7 td29"><P class="p8 ft7">&nbsp;</P></TD>
+        <TD class="tr7 td5"><P class="p8 ft7">&nbsp;</P></TD>
+    </TR>
+    </TABLE>
+    <P class="p21 ft17"><SPAN class="ft16">THE INSURED </SPAN>I agree that the statements and answers provided within the entire application are true, complete, and correct to the best of my knowledge and belief.</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t5">
+    <TR>
+        <TD class="tr18 td30"><P class="p8 ft6">Signature</P></TD>
+        <TD class="tr18 td31"><P class="p8 ft9">Date</P></TD>
+    </TR>
+    </TABLE>
+    <P class="p22 ft17"><SPAN class="ft16">THE PAYOR </SPAN>I authorize SBLI to charge my Premiums to my [checking/savings account] [or] [Credit card/Debit card]. This authorization is to remain in effect until I request cancellation.</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t6">
+    <TR>
+        <TD class="tr18 td30"><P class="p8 ft6">Signature</P></TD>
+        <TD class="tr18 td31"><P class="p8 ft9">Date</P></TD>
+    </TR>
+    </TABLE>
+    <P class="p23 ft17"><SPAN class="ft16">THE PRODUCER </SPAN>hereby confirms that the applicant answered the questions regarding replacement of life insurance.</P>
+    <TABLE cellpadding="0" cellspacing="0" class="t7">
+    <TR>
+        <TD class="tr0 td30"><P class="p8 ft6">Signature</P></TD>
+        <TD class="tr0 td32"><P class="p8 ft6">Date</P></TD>
+    </TR>
+    <TR>
+        <TD class="tr19 td30"><P class="p8 ft6">Signed at (City and State)</P></TD>
+        <TD class="tr19 td32"><P class="p8 ft9">Producer #</P></TD>
+    </TR>
+    </TABLE>
+    <P class="p24 ft17">SBLI reserves the right to make administrative changes to the application. Any changes made will not be attributed to the applicant.</P>
+    </DIV>
+    <DIV id="id_2">
+    <TABLE cellpadding="0" cellspacing="0" class="t2">
+    <TR>
+        <TD class="tr15 td33"><P class="p8 ft14"><NOBR>ICC15-FPP-A</NOBR></P></TD>
+        <TD class="tr15 td34"><P class="p11 ft14">0515</P></TD>
+    </TR>
+    </TABLE>
+    </DIV>
+    </DIV>
+
+</apex:page>
